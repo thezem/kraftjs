@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "watch": true,
+    "target": "ES6",
+    "lib": ["es6", "ES2017", "dom", "dom.iterable", "scripthost"],
+
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictNullChecks": false,
+    "sourceMap": true,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "allowJs": true,
+    "strict": true,
+    "alwaysStrict": false,
+    "checkJs": false,
+    "outDir": "../public/dist",
+    "jsx": "react",
+    "allowSyntheticDefaultImports": false,
+    "moduleResolution": "NodeNext",
+    "allowUmdGlobalAccess": true,
+    "noResolve": false,
+    "module": "AMD",
+    "baseUrl": ".",
+    "paths": {
+      "react": ["../node_modules/react"],
+      "react-dom": ["../node_modules/react-dom"],
+      "@pages/*": ["../src/pages/"],
+      "@router": ["../src/router"]
+    }
+  },
+  "isolatedModules": false,
+  "include": ["../src/**/*"]
+}

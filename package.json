@@ -1,0 +1,32 @@
+{
+  "version": "1.0.9",
+  "name": "kraft",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antiihope/kraftjs.git"
+  },
+  "dependencies": {
+    "@babel/core": "^7.19.6",
+    "@babel/preset-env": "^7.19.4",
+    "@babel/preset-react": "^7.18.6",
+    "esbuild": "^0.15.11",
+    "esbuild-plugin-alias": "^0.2.1",
+    "esbuild-serve": "^1.0.1",
+    "express": "^4.18.2",
+    "live-server": "^1.2.2",
+    "react": "latest",
+    "yargs": "^17.6.0"
+  },
+  "description": "the crafted React Framework",
+  "bugs": {
+    "url": "https://github.com/antiihope/kraftjs/issues"
+  },
+  "homepage": "https://github.com/antiihope/kraftjs#readme",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "publish": "npm publish --access public"
+  },
+  "author": "antiihpe",
+  "license": "ISC"
+}
