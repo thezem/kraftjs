@@ -25,10 +25,10 @@
     "module": "AMD",
     "baseUrl": ".",
     "paths": {
-      "react": ["../node_modules/react"],
-      "react-dom": ["../node_modules/react-dom"],
-      "@pages/*": ["../src/pages/"],
-      "@router": ["../src/router"]
+      "react": ["../../node_modules/react"],
+      "react-dom": ["../../node_modules/react-dom"],
+      "@pages/*": ["../../src/pages/"],
+      "@router": ["../../src/router"]
     }
   },
   "isolatedModules": false,
