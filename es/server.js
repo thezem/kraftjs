@@ -215,9 +215,8 @@ let result = require('esbuild')
     entryPoints: names,
     chunkNames: 'chunks/[hash][ext]',
     keepNames: true,
-    sourcemap: false,
+    sourcemap: 'inline',
     splitting: true,
-
     allowOverwrite: true,
     outdir: 'public/server',
     loader: { '.js': 'jsx' },
@@ -243,7 +242,9 @@ let result = require('esbuild')
         entryPoints: ['./src/server.js'],
         chunkNames: 'chunks/[name][hash][ext]',
         keepNames: true,
-        sourcemap: false,
+        // sourcemap: false,
+        sourcemap: 'inline',
+
         splitting: false,
 
         allowOverwrite: true,
@@ -304,6 +305,10 @@ let result = require('esbuild')
         fs.writeFileSync(resolve('public', 'dist', 'index.html'), newIndex);
         console.log('watching...');
         console.log('build finished...');
-        require(process.cwd() + '/public/server/server.js');
+        try {
+          require(process.cwd() + '/public/server/server.js');
+        } catch (error) {
+          console.log(error);
+        }
       });
   });

@@ -19,7 +19,9 @@ function kills(x, ca) {
     return x;
   }
 }
-
+kills(null, () => {
+  fs.rmdirSync(process.cwd() + '/public/dist', { recursive: true });
+});
 const dirFile = (...args) => {
   return kills([], () => {
     return fs.readdirSync(path.resolve(process.cwd(), ...args));
@@ -99,7 +101,7 @@ let result = require('esbuild')
     chunkNames: 'chunks/[name][hash][ext]',
     keepNames: true,
     target: 'es2015',
-    sourcemap: false,
+    sourcemap: 'inline',
     splitting: true,
 
     allowOverwrite: true,

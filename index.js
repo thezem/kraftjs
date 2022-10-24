@@ -18,12 +18,8 @@ try {
 var window = window || {};
 
 const React = require('react');
-const useRouter = require('./router/hooks').useRouter;
-const InlineStyle = require('./router/hooks').InlineStyle;
 
-const NewReact = {};
-
-Object.assign(NewReact, React);
+const NewReact = Object.assign({}, React);
 
 const originalCreateElement = NewReact.createElement;
 let toArr = (kids) => {
@@ -119,9 +115,9 @@ let krFor = (args) => {
   return originalCreateElement(...args);
 };
 const createElement = (...args) => {
-  if (args[1] && args[1].hasOwnProperty('krFor')) {
-    return krFor(args);
-  }
+  // if (args[1] && args[1].hasOwnProperty('krFor')) {
+  //   return krFor(args);
+  // }
   if (args[1] && args[1].hasOwnProperty('if')) {
     if (!args[1].if) {
       return null;
@@ -129,17 +125,19 @@ const createElement = (...args) => {
       delete args[1].if;
     }
   }
-
   var ele = originalCreateElement(...args);
   return ele;
 };
 
+const { useRouter, InlineStyle } = require('./router/hooks');
+
 NewReact.createElement = createElement;
 //console.log();
-module.exports = NewReact;
+module.exports = React;
+window.React = NewReact;
+globalThis.React = NewReact;
 module.exports.useRouter = useRouter;
 module.exports.InlineStyle = InlineStyle;
-
 // if (args[1] && args[1].hasOwnProperty('krFor')) {
 //   // //console.log('onclick', args[1]);
 //   let els = args[1].krFor;

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 var window = globalThis || {};
 
 function useSession(defKey, defaultValue = false) {

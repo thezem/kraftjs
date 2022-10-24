@@ -1,4 +1,6 @@
 import React, { useState, useEffect, Suspense } from '../index.js';
+console.log(React.useState);
+
 const GLOBAL_CACHE = 'cache-v2';
 
 var window = globalThis || {};
@@ -519,7 +521,7 @@ function useSession(defKey, defaultValue = false) {
   return [storedValue, setValue];
 }
 export const Router = (obs) => {
-  const [props, setprops] = useState(_ParseCompChildren(obs.children));
+  const [props, setprops] = useState(_ParseCompChildren(obs.children) || {});
 
   routes.setRoutes(props);
   const [params, setParams] = useState(_routeParser(props));
@@ -655,8 +657,8 @@ async function getComponet(name, params) {
   });
   return ret;
 }
-export const RouterServer = (obs) => {
-  const [props, setprops] = useState(_ParseCompChildren(obs.children));
+export const RouterServer = (obs = {}) => {
+  const [props, setprops] = useState(_ParseCompChildren(obs.children) || {});
 
   routes.setRoutes(props);
   for (const key in routes.routes) {

@@ -1,5 +1,4 @@
 //@iterate import for in 'pages'
-import React from 'react';
 function _ParseCompChildren(obs) {
   /**
    * It takes an object of observables and returns an object of React components.

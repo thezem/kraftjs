@@ -122,13 +122,15 @@ let result = require('esbuild')
     chunkNames: 'chunks/[name][hash][ext]',
     keepNames: true,
     target: 'es2015',
-    sourcemap: false,
+    sourcemap: 'inline',
     splitting: true,
 
     allowOverwrite: true,
     outdir: 'public/dist',
     loader: { '.js': 'jsx' },
-
+    define: {
+      'process.env.NODE_ENV': "'production'",
+    },
     plugins: [
       alias({
         '@pages': path.resolve('./src/pages'),
@@ -138,13 +140,6 @@ let result = require('esbuild')
     ],
     bundle: true,
     format: 'esm',
-    external: [
-      'react',
-      'react-dom',
-      'react-router-dom',
-      'kraft',
-      'kraft/router',
-    ],
     platform: 'node',
     watch: false,
     minify: true,
@@ -153,10 +148,7 @@ let result = require('esbuild')
     // read public/index.html
 
     try {
-      const index = fs.readFileSync(
-        path.join(__dirname, '../', 'public', 'index.html'),
-        'utf8'
-      );
+      const index = fs.readFileSync(resolve('public', 'index.html'), 'utf8');
       let newIndex = index;
       for (var key in userConf.define) {
         console.log(key);
@@ -164,12 +156,14 @@ let result = require('esbuild')
       }
 
       // save to public/dist/index.html
-      fs.writeFileSync(
-        path.join(__dirname, '../', 'public', 'dist', 'index.html'),
-        newIndex
-      );
+      fs.writeFileSync(resolve('public', 'dist', 'index.html'), newIndex);
+      console.log('watching...');
       console.log('build finished...');
-    } catch (error) {}
+
+      console.log('build finished...');
+    } catch (error) {
+      console.log(error);
+    }
   });
 
 process.on('unhandledRejection', (reason, p) => {

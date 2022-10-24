@@ -14,9 +14,10 @@
     "noFallthroughCasesInSwitch": false,
     "allowJs": true,
     "strict": true,
+
     "alwaysStrict": false,
     "checkJs": false,
-    "outDir": "../public/dist",
+    "outDir": "../../public/dist",
     "jsx": "react",
     "allowSyntheticDefaultImports": false,
     "moduleResolution": "NodeNext",
@@ -32,5 +33,5 @@
     }
   },
   "isolatedModules": false,
-  "include": ["../src/**/*"]
+  "include": ["./src/*/*", "./"]
 }
