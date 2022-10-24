@@ -1,5 +1,5 @@
 {
-  "version": "1.0.9",
+  "version": "1.0.2",
   "name": "kraft",
   "main": "index.js",
   "repository": {
@@ -15,7 +15,7 @@
     "esbuild-serve": "^1.0.1",
     "express": "^4.18.2",
     "live-server": "^1.2.2",
-    "react": "latest",
+    "react": "^18.2.0",
     "yargs": "^17.6.0"
   },
   "description": "the crafted React Framework",
@@ -27,6 +27,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "publish": "npm publish --access public"
   },
+  "bin": "index.js",
   "author": "antiihpe",
   "license": "ISC"
 }

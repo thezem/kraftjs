@@ -118,10 +118,11 @@ function Routes() {
 }
 
 var routes = new Routes();
-export function Error() {
+function Error() {
   return (
     <div>
-      <h1>We could not find that page!</h1>
+      <h1>404</h1>
+      <p>Page not found</p>
     </div>
   );
 }
@@ -129,7 +130,10 @@ export function Error() {
 function findParam(str, path = location.pathname) {
   try {
     var regex = new RegExp('/[A-z-0-9-/]+', 'g');
-    var Fpath = str.match(regex)[0];
+    var Fpath = [];
+    try {
+      var Fpath = str.match(regex)[0]; //#check later
+    } catch (error) {}
     var count = str.split(/\//g);
     var ignore = {};
 
@@ -137,8 +141,9 @@ function findParam(str, path = location.pathname) {
     var c = 0;
 
     count = count.map((el, i) => {
-      if (el.includes('<Any>')) {
-        el = el.replaceAll('<Any>', '');
+      if (el.includes('*')) {
+        el = el.split('*').join('');
+
         ignore[count[0]] = i;
       }
       return el;
@@ -163,7 +168,7 @@ function findParam(str, path = location.pathname) {
       } else break;
     }
 
-    // ignore key based on <Any> value in Comp path
+    // ignore key based on * value in Comp path
     for (var key in ignore) {
       var num = ignore[key];
       var c = 0;
@@ -174,7 +179,7 @@ function findParam(str, path = location.pathname) {
         c++;
       }
     }
-    //End ignore key based on <Any> value in Comp path
+    //End ignore key based on * value in Comp path
 
     // console.log(obj);
 
@@ -627,21 +632,28 @@ export const Router = (obs) => {
   return <Error />;
 };
 async function getComponet(name, params) {
-  return new Promise((resolve, reject) => {
+  let ret = await new Promise((resolve, reject) => {
     try {
       _ImportComp(name).then((comp) => {
         if (!comp) {
           _ImportComp(params.path).then((Comp2) => {
-            resolve(Comp2);
+            if (Comp2) {
+              resolve(Comp2);
+            } else {
+              Error.default = Error;
+              resolve(Error);
+            }
           });
         } else {
           resolve(comp);
         }
       });
     } catch (error) {
-      resolve(false);
+      Error.default = Error;
+      resolve(Error);
     }
   });
+  return ret;
 }
 export const RouterServer = (obs) => {
   const [props, setprops] = useState(_ParseCompChildren(obs.children));
@@ -671,7 +683,6 @@ export const RouterServer = (obs) => {
   const [Component, setComponent] = useState(
     React.lazy(async () => await getComponet(name, params))
   );
-
   useEffect(() => {
     let intv;
 

@@ -1,5 +1,5 @@
 //@iterate import for in 'pages'
-
+import React from 'react';
 function _ParseCompChildren(obs) {
   /**
    * It takes an object of observables and returns an object of React components.
@@ -64,7 +64,6 @@ function _routeParser(obj, path = location.pathname) {
   }
 
   var newparams = _ParseProps(passed, path);
-
   if (passed.hasOwnProperty(newparams.path)) {
     newparams.props = { ...obj[newparams.path].props, ...newparams.props };
   }
@@ -98,12 +97,17 @@ function _ParseProps(obj, path = location.pathname) {
     }
   }
   list.reverse();
+  // console.log(list);
   return list[0] || { path: '404', props: {} };
 }
+
 function findParam(str, path = location.pathname) {
   try {
     var regex = new RegExp('/[A-z-0-9-/]+', 'g');
-    var Fpath = str.match(regex)[0];
+    var Fpath = [];
+    try {
+      var Fpath = str.match(regex)[0]; //#check later
+    } catch (error) {}
     var count = str.split(/\//g);
     var ignore = {};
 
@@ -111,8 +115,8 @@ function findParam(str, path = location.pathname) {
     var c = 0;
 
     count = count.map((el, i) => {
-      if (el.includes('<Any>')) {
-        el = el.replaceAll('<Any>', '');
+      if (el.includes('*')) {
+        el = el.split('*').join('');
         ignore[count[0]] = i;
       }
       return el;
@@ -137,7 +141,7 @@ function findParam(str, path = location.pathname) {
       } else break;
     }
 
-    // ignore key based on <Any> value in Comp path
+    // ignore key based on * value in Comp path
     for (var key in ignore) {
       var num = ignore[key];
       var c = 0;
@@ -148,7 +152,7 @@ function findParam(str, path = location.pathname) {
         c++;
       }
     }
-    //End ignore key based on <Any> value in Comp path
+    //End ignore key based on * value in Comp path
 
     // console.log(obj);
 
@@ -171,8 +175,10 @@ function findParam(str, path = location.pathname) {
       path: newobj['path'] ? newobj['path'] : false,
       props: delete newobj['path'] ? newobj : {},
     };
+
     return returns;
   } catch (error) {
+    console.log(error);
     return { path: str, props: {} };
   }
 }
@@ -195,7 +201,6 @@ function Error() {
 }
 async function RouterForServer(obs, importsX = {}) {
   let props = _ParseCompChildren(obs);
-
   let params = _routeParser(props);
   let thisPath = location.pathname;
   let Comprops = params.props;
@@ -219,8 +224,10 @@ async function RouterForServer(obs, importsX = {}) {
     }));
 
   if (Comp) {
+    // console.log('Comp', Comp,params,name);
     return { Comp, props: Comprops };
   } else {
+    // console.log(Comp);
     return { Comp: Error, props: {} };
   }
 }
