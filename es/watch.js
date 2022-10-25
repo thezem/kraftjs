@@ -157,7 +157,6 @@ let result = require('esbuild')
 let consc = {
   open: false,
   port: process.argv[4] || 3000,
-  host: 'localhost',
   root: './public/dist',
   file: 'index.html',
 };
