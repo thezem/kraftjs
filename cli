@@ -8,16 +8,9 @@ function kills(x, ca) {
   }
 }
 
-e = '';
-const yargs = require('yargs' + e);
+const yargs = require(`yargs${''}`);
 
-const argv = yargs
-  .command('lyr', '', {})
-  .option('time', {
-    alias: 't',
-  })
-  .help()
-  .alias('help', 'h').argv;
+const argv = yargs.command('lyr', '', {}).argv;
 
 this.build = (x) => {
   switch (x) {

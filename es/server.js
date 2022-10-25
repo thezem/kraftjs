@@ -306,13 +306,10 @@ let result = require('esbuild')
           author: '',
           license: 'ISC',
           dependencies: {
-            '@babel/preset-env': '^7.19.4',
-            '@babel/preset-react': '^7.18.6',
-            esbuild: '^0.15.11',
             express: '^4.18.2',
             react: '^18.2.0',
             'react-dom': '^18.2.0',
-            kraftjs: '',
+            kraftjs: 'git+https://github.com/antiihope/kraftjs.git',
           },
           devDependencies: {},
           description: '',
@@ -330,7 +327,7 @@ let result = require('esbuild')
         }
 
         // save to public/dist/index.html
-        fs.writeFileSync(resolve('public', 'dist', 'index.html'), newIndex);
+        fs.writeFileSync(resolve('public', 'server', 'index.html'), newIndex);
         console.log('watching...');
         console.log('build finished...');
         try {

@@ -3,7 +3,7 @@ import React from '../';
 
 import ReactDOMServer from 'react-dom/server';
 import fs from 'fs';
-let html = fs.readFileSync('./public/index.html', 'utf8');
+let html = fs.readFileSync('./public/server/index.html', 'utf8');
 import express from 'express';
 import RouterForServer from '../server/index';
 let toArr = (kids) => {
@@ -14,6 +14,7 @@ let toArr = (kids) => {
     return [kids];
   }
 };
+
 async function KraftExpressServer(req, res, next, App, imports) {
   var print = console.log;
   global.location = {
@@ -34,29 +35,51 @@ async function KraftExpressServer(req, res, next, App, imports) {
   global.AppLocals = global.AppLocals || {};
   let KraftApp = App();
   let els = [];
+  let headString = '';
   await new Promise((resolve) => {
-    toArr(KraftApp.props.children).forEach(async (el, i) => {
-      if (el.type.name == 'RouterServer') {
-        els.push(await RouterForServer(el.props.children, imports));
-      } else {
-        els.push({ Comp: el.type, props: el.props });
-      }
-      if (i == toArr(KraftApp.props.children).length - 1) resolve();
-    });
+    try {
+      toArr(KraftApp.props.children).forEach(async (el, i) => {
+        if (el.type.name == 'Head') {
+          console.log('head');
+
+          let head = await ReactDOMServer.renderToString(el);
+          // let head = customToStaticMarkup(
+          //   React.createElement('head', el.props, el.props.children)
+          // );
+          headString = head.replace('<head>', '').replace('</head>', '');
+          return;
+        }
+        if (el.type.name == 'RouterServer') {
+          els.push(await RouterForServer(el.props.children, imports));
+        } else {
+          els.push({ Comp: el.type, props: el.props });
+        }
+        if (i == toArr(KraftApp.props.children).length - 1) resolve();
+      });
+    } catch (error) {
+      res.status(500).send('Internal Server Error');
+      resolve();
+    }
   });
-  const dataReturn = html.replace(
-    '<div id="root"></div>',
-    `<div id="root">${ReactDOMServer.renderToString(
-      <React.Suspense fallback={<div>loading...</div>}>
-        {els.map((El, i) => {
-          return <El.Comp {...El.props} key={i} />;
-        })}
-      </React.Suspense>
-    )}</div><script>
-    window.kraftServer = true;
-    </script>
+  const dataReturn = html
+    .replace(
+      '<head>',
+      `<head><script>
+  window.kraftServer = true;
+  </script>${headString}`
+    )
+    .replace(
+      '<div id="root"></div>',
+      `<div id="root">${ReactDOMServer.renderToString(
+        <React.Suspense fallback={<div>loading...</div>}>
+          {els.map((El, i) => {
+            return <El.Comp {...El.props} key={i} />;
+          })}
+        </React.Suspense>
+      )}</div>
     `
-  );
+    );
+
   print(req.path);
   res.send(dataReturn);
   next();
