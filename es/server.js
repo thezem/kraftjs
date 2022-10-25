@@ -237,7 +237,7 @@ let result = require('esbuild')
     entryPoints: names,
     chunkNames: 'chunks/[hash][ext]',
     keepNames: true,
-    sourcemap: 'inline',
+    sourcemap: 'external',
     splitting: true,
     allowOverwrite: true,
     outdir: 'public/server',
@@ -267,7 +267,7 @@ let result = require('esbuild')
         chunkNames: 'chunks/[name][hash][ext]',
         keepNames: true,
         // sourcemap: false,
-        sourcemap: 'inline',
+        sourcemap: false,
 
         splitting: false,
 
