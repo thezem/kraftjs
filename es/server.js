@@ -165,12 +165,19 @@ let Decors = {
           (x) => `import ${x.split('.')[0]} from './${folder}/${x}'`
         )}]
         `;
+
         str = `let importsX = {${files.map(
           (x) => `'./${folder}/${x}':import('./${folder}/${x}')`
         )}}
+
+
         console.log(importsX)`;
+
         text = text.replace(found, str).replace('||=', '||');
-        return BmsPlugFn(text);
+        return {
+          contents: text,
+          loader: 'jsx',
+        };
       }
       // delete all comments from the file
       const regex2 = /\/\/.*\n/g;
@@ -229,10 +236,12 @@ let result = require('esbuild')
       }),
       BmsPlug,
       Defines,
+      Decors,
     ],
     bundle: true,
     platform: 'node',
     format: 'esm',
+
     watch: false,
     minify: true,
   })
@@ -252,15 +261,19 @@ let result = require('esbuild')
         loader: { '.js': 'jsx' },
 
         plugins: [
+          Decors,
           alias({
             '@pages': path.resolve('./src/pages'),
             '@router': path.resolve('./src/router.jsx'),
           }),
           Decors,
+          Decors,
         ],
+
         bundle: true,
         platform: 'node',
         format: 'cjs',
+
         watch: false,
         minify: true,
       })

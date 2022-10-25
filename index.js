@@ -125,33 +125,28 @@ const createElement = (...args) => {
       delete args[1].if;
     }
   }
-  var ele = originalCreateElement(...args);
+  // remove first two args
+  let newArgs = args.slice(2);
+  let newKids = toArr(newArgs);
+  newKids = newKids.map((e) => {
+    if (typeof e === 'string') {
+      return e;
+    }
+    if (typeof e == 'object') {
+      e.key = e.key || Math.random();
+    }
+    return e;
+  });
+  let newEl = [args[0], args[1], newKids];
+  var ele = originalCreateElement(...newEl);
   return ele;
 };
 
 const { useRouter, InlineStyle } = require('./router/hooks');
 
 NewReact.createElement = createElement;
-//console.log();
-module.exports = React;
+module.exports = NewReact;
 window.React = NewReact;
 globalThis.React = NewReact;
 module.exports.useRouter = useRouter;
 module.exports.InlineStyle = InlineStyle;
-// if (args[1] && args[1].hasOwnProperty('krFor')) {
-//   // //console.log('onclick', args[1]);
-//   let els = args[1].krFor;
-//   //console.log('els', els);
-//   //console.log('els', args);
-//   let el = originalCreateElement(...els);
-//   //console.log('el', el);
-//   let ele = originalCreateElement(...args);
-//   //console.log(ele);
-
-//   if (Array.isArray(ele.props.children)) {
-//     ele.props.children.push(el);
-//   } else {
-//     ele.props.children = [ele.props.children, el];
-//   }
-//   return ele;
-// }
