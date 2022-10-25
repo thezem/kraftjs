@@ -172,8 +172,23 @@ let Decors = {
 
 
         console.log(importsX)`;
-
         text = text.replace(found, str).replace('||=', '||');
+        //#
+        const regex2 = /resolveFile\((.*?)\)/g;
+
+        let found2 = text.match(regex2);
+        if (found2) {
+          try {
+            found = found2[0];
+            replaced = found.replace('resolveFile', 'fs.readFileSync');
+            content = eval(replaced);
+            text = text.replace(found, '`' + content + '`');
+          } catch (error) {
+            console;
+          }
+        }
+        //#
+
         return {
           contents: text,
           loader: 'jsx',

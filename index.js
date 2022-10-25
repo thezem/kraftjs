@@ -125,20 +125,20 @@ const createElement = (...args) => {
       delete args[1].if;
     }
   }
-  // remove first two args
-  let newArgs = args.slice(2);
-  let newKids = toArr(newArgs);
-  newKids = newKids.map((e) => {
-    if (typeof e === 'string') {
-      return e;
-    }
-    if (typeof e == 'object') {
-      e.key = e.key || Math.random();
-    }
-    return e;
-  });
-  let newEl = [args[0], args[1], newKids];
-  var ele = originalCreateElement(...newEl);
+  // // remove first two args
+  // let newArgs = args.slice(2);
+  // let newKids = toArr(newArgs);
+  // newKids = newKids.map((e) => {
+  //   if (typeof e === 'string') {
+  //     return e;
+  //   }
+  //   if (typeof e == 'object') {
+  //     e.key = e.key || Math.random();
+  //   }
+  //   return e;
+  // });
+  // let newEl = [args[0], args[1], newKids];
+  var ele = originalCreateElement(...args);
   return ele;
 };
 

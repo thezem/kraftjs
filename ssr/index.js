@@ -2,19 +2,16 @@
 import React from '../';
 
 import ReactDOMServer from 'react-dom/server';
-let html = resolveFile('./public/index.html', 'utf8');
+import fs from 'fs';
+let html = fs.readFileSync('./public/index.html', 'utf8');
 import express from 'express';
 import RouterForServer from '../server/index';
 async function KraftExpressServer(req, res, next, App, imports) {
   var print = console.log;
-  // global.console.log = (...args) => {
-  //   print('App output:', ...args);
-  // };
   global.location = {
     ancestorOrigins: {},
     href: req.protocol + '://' + req.headers.host + req.url,
     origin: req.headers.host,
-
     protocol: req.protocol,
     host: req.headers.host,
     hostname: req.headers.host,
@@ -27,16 +24,16 @@ async function KraftExpressServer(req, res, next, App, imports) {
   global.sessionStorage = global.sessionStorage || {};
   global.localStorage = global.localStorage || {};
   global.AppLocals = global.AppLocals || {};
-  let Dodje = App();
+  let KraftApp = App();
   let els = [];
   await new Promise((resolve) => {
-    Dodje.props.children.forEach(async (el, i) => {
+    KraftApp.props.children.forEach(async (el, i) => {
       if (el.type.name == 'RouterServer') {
         els.push(await RouterForServer(el.props.children, imports));
       } else {
         els.push({ Comp: el.type, props: el.props });
       }
-      if (i == Dodje.props.children.length - 1) resolve();
+      if (i == KraftApp.props.children.length - 1) resolve();
     });
   });
   const dataReturn = html.replace(
