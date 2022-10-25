@@ -44,7 +44,10 @@ async function KraftExpressServer(req, res, next, App, imports) {
           return <El.Comp {...El.props} key={i} />;
         })}
       </React.Suspense>
-    )}</div>`
+    )}</div><script>
+    window.kraftServer = true;
+    </script>
+    `
   );
   print(req.path);
   res.send(dataReturn);
