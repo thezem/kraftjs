@@ -5,7 +5,9 @@ var copyRecursiveSync = function (src, dest) {
   var stats = exists && fs.statSync(src);
   var isDirectory = exists && stats.isDirectory();
   if (isDirectory) {
-    fs.mkdirSync(dest);
+    try {
+      fs.mkdirSync(dest);
+    } catch (e) {}
     fs.readdirSync(src).forEach(function (childItemName) {
       copyRecursiveSync(
         path.join(src, childItemName),
@@ -13,8 +15,18 @@ var copyRecursiveSync = function (src, dest) {
       );
     });
   } else {
-    fs.copyFileSync(src, dest);
+    if (!fs.existsSync(dest)) {
+      fs.copyFileSync(src, dest);
+    } else {
+      console.log(`file already present ${dest}`);
+    }
   }
 };
 
-copyRecursiveSync('./setup', './setuptest');
+copyRecursiveSync(path.resolve(__dirname, '../setup'), process.cwd());
+
+console.log(`
+Your kraft App is ready to go!
+now run:
+npm i express react-dom@18.2.0
+`);

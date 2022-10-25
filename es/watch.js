@@ -162,4 +162,8 @@ let consc = {
 };
 liveServer.start(consc);
 
-console.log('server started at http://localhost:' + (process.argv[4] || 3000));
+setTimeout(() => {
+  console.log(
+    'server started at http://localhost:' + (process.argv[4] || 3000)
+  );
+}, 1500);

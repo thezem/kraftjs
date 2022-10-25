@@ -2,6 +2,20 @@
 
 # the crafted zero config React Framework
 
+## Quick start
+
+```
+> npm init -y
+> npm i https://github.com/antiihope/kraftjs.git
+> npm i express react-dom@18.2.0
+> kraftjs --setup // <-- setup your public and src directory in instant
+> kratjs --dev
+
+>> Your kraft App is ready to go!
+>> server started at http://localhost:3000
+>> Serving "./public/dist" at http://localhost:3000 (http://127.0.0.1:3000
+```
+
 ## ✨ Features ✨
 
 ### Rendering elements conditionally
@@ -32,19 +46,19 @@ function Home() {
 ## build for server side rendering
 
 ```
-node kraft --build server
+kratjs --build server
 ```
 
 ## maybe client side
 
 ```
-node kraft --build client
+kratjs --build client
 ```
 
 ### Wanna try somthing... real quick
 
 ```
-> node kraft --dev 3000
+> kratjs --dev 3000
 
 > server started at http://localhost:3000
 > Serving "./public/dist" at http://localhost:3000 (http://127.0.0.1:3000
