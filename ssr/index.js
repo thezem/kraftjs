@@ -6,6 +6,14 @@ import fs from 'fs';
 let html = fs.readFileSync('./public/index.html', 'utf8');
 import express from 'express';
 import RouterForServer from '../server/index';
+let toArr = (kids) => {
+  if (Array.isArray(kids)) {
+    return kids;
+  }
+  if (kids) {
+    return [kids];
+  }
+};
 async function KraftExpressServer(req, res, next, App, imports) {
   var print = console.log;
   global.location = {
@@ -27,13 +35,13 @@ async function KraftExpressServer(req, res, next, App, imports) {
   let KraftApp = App();
   let els = [];
   await new Promise((resolve) => {
-    KraftApp.props.children.forEach(async (el, i) => {
+    toArr(KraftApp.props.children).forEach(async (el, i) => {
       if (el.type.name == 'RouterServer') {
         els.push(await RouterForServer(el.props.children, imports));
       } else {
         els.push({ Comp: el.type, props: el.props });
       }
-      if (i == KraftApp.props.children.length - 1) resolve();
+      if (i == toArr(KraftApp.props.children).length - 1) resolve();
     });
   });
   const dataReturn = html.replace(

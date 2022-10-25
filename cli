@@ -20,8 +20,6 @@ const argv = yargs
   .alias('help', 'h').argv;
 
 this.build = (x) => {
-  console.log('i got ' + x);
-
   switch (x) {
     case 'server':
       require('./es/server.js');
@@ -36,6 +34,9 @@ this.build = (x) => {
 };
 this.dev = (x, rest) => {
   require('./es/watch.js');
+};
+this.setup = (x, rest) => {
+  require('./es/setup.js');
 };
 let argsArray = (() => {
   let arr = [];
