@@ -9,7 +9,7 @@
 > npm i https://github.com/antiihope/kraftjs.git
 > npm i express react-dom@18.2.0
 > kraftjs --setup // <-- setup your public and src directory in instant
-> kratjs --dev
+> kraftjs --dev
 
 >> Your kraft App is ready to go!
 >> server started at http://localhost:3000
@@ -46,33 +46,41 @@ function Home() {
 ## build for server side rendering
 
 ```
-kratjs --build server
+kraftjs --build server
 ```
 
 ## maybe client side
 
 ```
-kratjs --build client
+kraftjs --build client
 ```
 
 ### Wanna try somthing... real quick
 
 ```
-> kratjs --dev 3000
+> kraftjs --dev 3000
 
 > server started at http://localhost:3000
 > Serving "./public/dist" at http://localhost:3000 (http://127.0.0.1:3000
 ```
 
-## behold your "no problem" router that runs server-side/client-side
+## behold your "no problem" router that runs server/client-side
 
-### minimizing the number of javascript on client-side, load pages only on demand
+### minimize the number of javascript on client-side, load pages only on demand
 
 ```
+import React from 'kraft';
+import { RouterServer, Route } from 'kraft/router';
+
+
+// kraft renders components dynamically from ./src/pages based on user requests
+// you can define your own "path to component" mapping and your paths as params
+
 const App = () => {
+// ! This router is required by kraft
   return (
     <>
-      <RouterServer path="./pages/">
+      <RouterServer>
         <Route path="/" Comp="index" />
         <Route path={['/user', '/user/:name']} Comp="user" />
       </RouterServer>
@@ -81,4 +89,12 @@ const App = () => {
 };
 
 export default App
+```
+
+###### !NO HASSL3 GODS
+
+###### @antiihope
+
+```
+
 ```
