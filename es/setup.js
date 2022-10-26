@@ -30,8 +30,9 @@ console.log(__filename);
 if (fs.existsSync(path.resolve(process.cwd(), 'package.json'))) {
   const packageJson = require(path.resolve(process.cwd(), 'package.json'));
   let scripts = {
-    buildClient: 'kraftjs --build client',
-    buildSSR: 'kraftjs --build server',
+    ccr: 'kraftjs --build client',
+    ssr: 'kraftjs --build server --prod',
+    startServer: 'node public/server',
     set: 'kraftjs --setup',
     dev: 'kraftjs --dev',
   };

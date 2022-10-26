@@ -1,6 +1,5 @@
 // //@ts-nocheck
 import React from '../';
-
 import ReactDOMServer from 'react-dom/server';
 import fs from 'fs';
 import path from 'path';
@@ -20,7 +19,7 @@ let toArr = (kids) => {
 };
 
 //@iterate import for in 'pages'
-console.log(importsX);
+// console.log(importsX);
 async function KraftExpressServer(req, res, next, App, imports) {
   var print = console.log;
   global.location = {
@@ -46,7 +45,7 @@ async function KraftExpressServer(req, res, next, App, imports) {
     try {
       toArr(KraftApp.props.children).forEach(async (el, i) => {
         if (el.type.name == 'Head') {
-          console.log('head');
+          // console.log('head');
 
           let head = await ReactDOMServer.renderToString(el);
 
@@ -58,6 +57,8 @@ async function KraftExpressServer(req, res, next, App, imports) {
         } else {
           els.push({ Comp: el.type, props: el.props });
         }
+        res.setHeader('Cache-Control', 'max-age=360');
+
         if (i == toArr(KraftApp.props.children).length - 1) resolve();
       });
     } catch (error) {

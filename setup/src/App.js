@@ -9,7 +9,7 @@ let Header = () => {
     </div>
   );
 };
-// kraft renders components dynamically from ./src/pages based on user requests
+// kraft renders components dynamically from ./pages folder based on user requests
 // you can define your own "path to component" mapping and your paths as params
 
 const App = () => {

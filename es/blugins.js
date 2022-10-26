@@ -129,7 +129,6 @@ let handleStr = (saidPath, folder, x) => {
 function CustomSyntax(found, text, saidPath) {
   found = found[0];
   folder = found.split("'")[1];
-  console.log(folder, __dirname);
   files = fs.readdirSync(path.join(process.cwd(), 'src', folder));
   str = `let importsX = [${files.map(
     (x) => `import ${x.split('.')[0]} from './${folder}/${x}'`
@@ -181,7 +180,7 @@ let Decors = {
       // const regex = /\/\/@iterate import for in \'[a-zA-Z0-9\/]*\'/g;
       let found = text.match(regex);
       if (found) {
-        console.log(args.path);
+        // console.log(args.path);
         return CustomSyntax(found, text, args.path);
       }
       // delete all comments from the file
@@ -205,7 +204,7 @@ let Decors = {
 let Defines = {
   name: 'Defines',
   setup(build) {
-    build.onLoad({ filter: /.*\.js*|.ts*|.html|.css|$/g }, async (args) => {
+    build.onLoad({ filter: /(.*?)$/g }, async (args) => {
       let text = await fs.promises.readFile(args.path, 'utf8');
       for (var key in userConf.define) {
         text = changeIn(text, key, userConf.define[key]);

@@ -37,14 +37,14 @@ dirFile('public', 'server', 'chunks').forEach((x) => {
 
 kills(null, () => {
   fs.rmdirSync(process.cwd() + '/public/server/chunks', { recursive: true });
-  fs.rmdirSync(process.cwd() + '/public/server/', { recursive: true });
+  // fs.rmdirSync(process.cwd() + '/public/server/', { recursive: true });
 
-  // dirFile('public', 'server').forEach((x) => {
-  //   if (x.includes('-ks-')) {
-  //     console.log(x);
-  //     delFile('public', 'server', x);
-  //   }
-  // });
+  dirFile('public', 'server').forEach((x) => {
+    if (x.includes('-ks-')) {
+      console.log(x);
+      delFile('public', 'server', x);
+    }
+  });
   dirFile('public', 'server', 'pages').forEach((x) => {
     if (x.includes('-ks-')) {
       console.log(x);
@@ -69,15 +69,13 @@ let result = require('esbuild')
     allowOverwrite: true,
     outdir: 'public/server/static',
     loader: { '.js': 'jsx' },
+    define: userConf.define,
 
     plugins: [
-      Decors,
       alias({
         '@pages': path.resolve('./src/pages'),
         '@router': path.resolve('./src/router.jsx'),
       }),
-      BmsPlug,
-      Defines,
       Decors,
     ],
     bundle: true,
@@ -95,6 +93,7 @@ let result = require('esbuild')
         keepNames: true,
         // sourcemap: false,
         sourcemap: false,
+        define: userConf.define,
 
         splitting: false,
 
@@ -103,12 +102,10 @@ let result = require('esbuild')
         loader: { '.js': 'jsx' },
 
         plugins: [
-          Decors,
           alias({
             '@pages': path.resolve('./src/pages'),
             '@router': path.resolve('./src/router.jsx'),
           }),
-          Decors,
           Decors,
         ],
 
@@ -148,19 +145,12 @@ let result = require('esbuild')
         const index = fs.readFileSync(resolve('public', 'index.html'), 'utf8');
         let newIndex = index;
         for (var key in userConf.define) {
-          console.log(key);
+          // console.log(key);
           newIndex = changeIn(newIndex, key, userConf.define[key]);
         }
 
         // save to public/server/index.html
         fs.writeFileSync(resolve('public', 'server', 'index.html'), newIndex);
-        console.log('watching...');
         console.log('build finished...');
-        try {
-          console.log('asc');
-          // require(process.cwd() + '/public/server/server.js');
-        } catch (error) {
-          console.log(error);
-        }
       });
   });
