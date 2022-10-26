@@ -39,12 +39,12 @@ kills(null, () => {
   fs.rmdirSync(process.cwd() + '/public/server/chunks', { recursive: true });
   fs.rmdirSync(process.cwd() + '/public/server/', { recursive: true });
 
-  dirFile('public', 'server').forEach((x) => {
-    if (x.includes('-ks-')) {
-      console.log(x);
-      delFile('public', 'server', x);
-    }
-  });
+  // dirFile('public', 'server').forEach((x) => {
+  //   if (x.includes('-ks-')) {
+  //     console.log(x);
+  //     delFile('public', 'server', x);
+  //   }
+  // });
   dirFile('public', 'server', 'pages').forEach((x) => {
     if (x.includes('-ks-')) {
       console.log(x);
@@ -67,7 +67,7 @@ let result = require('esbuild')
     sourcemap: 'external',
     splitting: true,
     allowOverwrite: true,
-    outdir: 'public/server',
+    outdir: 'public/server/static',
     loader: { '.js': 'jsx' },
 
     plugins: [
@@ -157,7 +157,7 @@ let result = require('esbuild')
         console.log('watching...');
         console.log('build finished...');
         try {
-          console.log('starting server...');
+          console.log('asc');
           // require(process.cwd() + '/public/server/server.js');
         } catch (error) {
           console.log(error);

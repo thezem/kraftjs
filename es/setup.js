@@ -24,7 +24,28 @@ var copyRecursiveSync = function (src, dest) {
 };
 
 copyRecursiveSync(path.resolve(__dirname, '../setup'), process.cwd());
+console.log(__filename);
+// find package.json in root folder
+// add scripts
+if (fs.existsSync(path.resolve(process.cwd(), 'package.json'))) {
+  const packageJson = require(path.resolve(process.cwd(), 'package.json'));
+  let scripts = {
+    buildClient: 'kraftjs --build client',
+    buildSSR: 'kraftjs --build server',
+    set: 'kraftjs --setup',
+    dev: 'kraftjs --dev',
+  };
+  if (packageJson.scripts) {
+    scripts = { ...scripts, ...packageJson.scripts };
+  }
+  packageJson.scripts = scripts;
+  fs.writeFileSync(
+    path.resolve(process.cwd(), 'package.json'),
+    JSON.stringify(packageJson, null, 2)
+  );
+}
 
+// colorize console
 console.log(`
 Your kraft App is ready to go!
 now run:

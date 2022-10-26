@@ -138,29 +138,29 @@ function CustomSyntax(found, text, saidPath) {
 
   str = `let importsX = {${files.map(
     (x) => `'./${folder}/${x}':import('./${folder}/${x}')`
-  )}}
-    console.log(importsX)`;
+  )}}`;
   str = `let importsX = {${files.map(
     (x) =>
       `'./${folder}/${x}':
         
         import('${handleStr(saidPath, folder, x)}')`
-  )}}
-    console.log(importsX)`;
+  )}}`;
   // console.log(str);
   text = text.replace(found, str).replace('||=', '||');
   //#
-  const regex2 = /resolveFile\((.*?)\)/g;
+  const regex2 = /resolveFile/g;
 
   let found2 = text.match(regex2);
   if (found2) {
     try {
       found = found2[0];
-      replaced = found.replace('resolveFile', 'fs.readFileSync');
-      content = eval(replaced);
-      text = text.replace(found, '`' + content + '`');
+      let html = fs.readFileSync(
+        path.resolve(process.cwd(), 'public', 'index.html')
+      );
+      replaced = found.replace('resolveFile', `${html}`);
+      text = text.replace(found, '`' + replaced + '`');
     } catch (error) {
-      console;
+      console.log(error);
     }
   }
   //#

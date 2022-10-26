@@ -4,12 +4,9 @@ import React from '../';
 import ReactDOMServer from 'react-dom/server';
 import fs from 'fs';
 import path from 'path';
-const file = path.resolve(process.cwd(), 'public', 'server', 'index.html');
+const file = path.resolve(process.cwd(), 'public/server', 'index.html');
 
-console.log('cwd', process.cwd());
-console.log('file', file);
-
-let html = fs.readFileSync(file, 'utf8');
+let html = resolveFile;
 import express from 'express';
 import RouterForServer from '../server/index';
 let toArr = (kids) => {
@@ -90,6 +87,14 @@ async function KraftExpressServer(req, res, next, App, imports) {
   res.send(dataReturn);
   return;
 }
+function NotPage(FilePath) {
+  return (
+    FilePath.endsWith('js') ||
+    FilePath.endsWith('css') ||
+    FilePath.endsWith('txt')
+  );
+}
+
 function Must(x, y, z) {
   if (typeof x !== y) {
     throw new Error(`Type of ${z} Must be ${y}`);
@@ -111,10 +116,10 @@ class KraftServer {
     app.start = app.listen;
     app.listen = (...args) => {
       app.get('/', async (req, res, next) => {
-        return await KraftExpressServer(req, res, next, options.App, importsX);
+        await KraftExpressServer(req, res, next, options.App, importsX);
       });
-      app.use('/', express.static('public/server'));
       app.use('/pages', express.static('public/server/pages'));
+      app.use('/', express.static('public/server'));
       app.use('/', async (req, res, next) => {
         await KraftExpressServer(req, res, next, options.App, importsX);
       });

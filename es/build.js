@@ -66,7 +66,7 @@ let result = require('esbuild')
     sourcemap: 'external',
     splitting: true,
     allowOverwrite: true,
-    outdir: 'public/dist',
+    outdir: 'public/dist/static',
     loader: { '.js': 'jsx' },
 
     plugins: [

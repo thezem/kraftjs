@@ -278,20 +278,22 @@ async function _ImportComp(x) {
   }
   try {
     if (window.addEventListener) {
-      return await import('/pages/' + x + '.js').then((C) => {
+      return await import('/static/pages/' + x + '.js').then((C) => {
         // console.log(C);
         routes.SaveComponent(x, C);
         return C;
       });
     } else {
-      return await import('./pages/' + x + '.js').then((C) => {
+    }
+  } catch (error) {
+    try {
+      return await import('./static/pages/' + x + '.js').then((C) => {
         // console.log(C);
 
         routes.SaveComponent(x, C);
         return C;
       });
-    }
-  } catch (error) {
+    } catch (error) {}
     // console.log(x, error);
     // console.log('Cannot find module', x);
 
