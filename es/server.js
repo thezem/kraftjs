@@ -157,6 +157,7 @@ let result = require('esbuild')
         console.log('watching...');
         console.log('build finished...');
         try {
+          console.log('starting server...');
           // require(process.cwd() + '/public/server/server.js');
         } catch (error) {
           console.log(error);
