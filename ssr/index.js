@@ -4,10 +4,12 @@ import React from '../';
 import ReactDOMServer from 'react-dom/server';
 import fs from 'fs';
 import path from 'path';
-let html = fs.readFileSync(
-  path.join(process.cwd(), 'public', 'server', 'index.html'),
-  'utf8'
-);
+const file = path.resolve(process.cwd(), 'public', 'server', 'index.html');
+
+console.log('cwd', process.cwd());
+console.log('file', file);
+
+let html = fs.readFileSync(file, 'utf8');
 import express from 'express';
 import RouterForServer from '../server/index';
 let toArr = (kids) => {
