@@ -1,7 +1,7 @@
 // @ts-nocheck
 // Try not to change anything in this file
 
-import React from 'kraft';
+import React from 'kraftjs';
 import { hydrate, render } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import App from './App';

@@ -1,4 +1,4 @@
-import React from 'kraft';
+import React from 'kraftjs';
 
 export default function NotFound() {
   // this page is rendered when a route is not found

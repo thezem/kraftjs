@@ -1,5 +1,5 @@
-import React, { useState } from 'kraft';
-import { Link } from 'kraft/router';
+import React, { useState } from 'kraftjs';
+import { Link } from 'kraftjs/router';
 export default function home(props) {
   const [name, setName] = useState([]);
   return (

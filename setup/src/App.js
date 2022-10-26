@@ -1,5 +1,5 @@
-import React from 'kraft';
-import { RouterServer, Route } from 'kraft/router';
+import React from 'kraftjsjs';
+import { RouterServer, Route } from 'kraftjsjs/router';
 import './App.css';
 
 let Header = () => {

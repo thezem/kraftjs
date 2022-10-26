@@ -23,7 +23,7 @@
 Using if Statment as attributes , and only render element if condition is true
 
 ```
-import React,{useState} from 'kraft';
+import React,{useState} from 'kraftjs';
 
 
 function Home() {
@@ -69,8 +69,8 @@ kraftjs --build client
 ### minimize the number of javascript on client-side, load pages only on demand
 
 ```
-import React from 'kraft';
-import { RouterServer, Route } from 'kraft/router';
+import React from 'kraftjs';
+import { RouterServer, Route } from 'kraftjs/router';
 
 
 // kraft renders components dynamically from ./src/pages based on user requests

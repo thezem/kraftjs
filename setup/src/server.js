@@ -1,5 +1,5 @@
 import App from './App.js';
-import KraftServer from 'kraft/ssr';
+import KraftServer from 'kraftjs/ssr';
 //@iterate import for in 'pages'
 const KraftApp = new KraftServer({
   App: App,
