@@ -138,7 +138,7 @@ const customToStaticMarkup = (ele) => {
 const Head = (props) => {
   let el = originalCreateElement('head', props, props.children);
   let string = customToStaticMarkup(el);
-  if (typeof document !== 'undefined' && !window.kraftServer) {
+  if (typeof document !== 'undefined') {
     let docHtml = document.querySelector('head').innerHTML;
     document.querySelector('head').innerHTML =
       string.replace('<head>', '').replace('</head>', '') + docHtml;

@@ -15,6 +15,8 @@ let toArr = (kids) => {
   }
 };
 
+//@iterate import for in 'pages'
+console.log(importsX);
 async function KraftExpressServer(req, res, next, App, imports) {
   var print = console.log;
   global.location = {
@@ -43,9 +45,7 @@ async function KraftExpressServer(req, res, next, App, imports) {
           console.log('head');
 
           let head = await ReactDOMServer.renderToString(el);
-          // let head = customToStaticMarkup(
-          //   React.createElement('head', el.props, el.props.children)
-          // );
+
           headString = head.replace('<head>', '').replace('</head>', '');
           return;
         }
@@ -94,7 +94,7 @@ class KraftServer {
   constructor(options) {
     Must(options, 'object', 'KraftServer');
     Must(options.App, 'function', 'App');
-    Must(options.imports, 'object', 'imports');
+    // Must(options.imports, 'object', 'imports');
     this.options = options;
     return () => {
       return this.start(options);
@@ -105,12 +105,14 @@ class KraftServer {
 
     app.start = app.listen;
     app.listen = (...args) => {
+      app.get('/', async (req, res, next) => {
+        await KraftExpressServer(req, res, next, options.App, importsX);
+      });
       app.use('/', express.static('public/server'));
       app.use('/pages', express.static('public/server/pages'));
       app.use('/', async (req, res, next) => {
-        await KraftExpressServer(req, res, next, options.App, options.imports);
+        await KraftExpressServer(req, res, next, options.App, importsX);
       });
-
       return app.start(...args);
     };
     return app;

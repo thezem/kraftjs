@@ -1,13 +1,10 @@
 import App from './App.js';
 import KraftServer from 'kraftjs/ssr';
-//@iterate import for in 'pages'
+
 const KraftApp = new KraftServer({
   App: App,
-  imports: importsX,
 });
-// Try not to change anything in this Area!
-//#region
-//#KRAFT SSR
+
 const app = KraftApp(); // kraft will automatically respond to requsts with html ...
 
 // ... Unless you say otherwise

@@ -148,6 +148,60 @@ let BmsPlug = {
     });
   },
 };
+
+let handleStr = (saidPath, folder, x) => {
+  return `${path.relative(
+    saidPath,
+    path.join(process.cwd(), 'src', folder, x)
+  )}`
+    .replace('.', '')
+    .split('\\')
+    .join('/');
+};
+function CustomSyntax(found, text, saidPath) {
+  found = found[0];
+  folder = found.split("'")[1];
+  console.log(folder, __dirname);
+  files = fs.readdirSync(path.join(process.cwd(), 'src', folder));
+  str = `let importsX = [${files.map(
+    (x) => `import ${x.split('.')[0]} from './${folder}/${x}'`
+  )}]
+        `;
+
+  str = `let importsX = {${files.map(
+    (x) => `'./${folder}/${x}':import('./${folder}/${x}')`
+  )}}
+  console.log(importsX)`;
+  str = `let importsX = {${files.map(
+    (x) =>
+      `'./${folder}/${x}':
+      
+      import('${handleStr(saidPath, folder, x)}')`
+  )}}
+  console.log(importsX)`;
+  // console.log(str);
+  text = text.replace(found, str).replace('||=', '||');
+  //#
+  const regex2 = /resolveFile\((.*?)\)/g;
+
+  let found2 = text.match(regex2);
+  if (found2) {
+    try {
+      found = found2[0];
+      replaced = found.replace('resolveFile', 'fs.readFileSync');
+      content = eval(replaced);
+      text = text.replace(found, '`' + content + '`');
+    } catch (error) {
+      console;
+    }
+  }
+  //#
+
+  return {
+    contents: text,
+    loader: 'jsx',
+  };
+}
 let Decors = {
   name: 'Decors',
   setup(build) {
@@ -155,44 +209,11 @@ let Decors = {
       let text = await fs.promises.readFile(args.path, 'utf8');
 
       // find ://@iterate import for in './pages'
-      const regex = /\/\/@iterate import for in \'[a-zA-Z0-9\/]*\'/g;
+      const regex = /\/\/@iterate import for in \'[a-zA-Z0-9\/\.]*\'/g;
+      // const regex = /\/\/@iterate import for in \'[a-zA-Z0-9\/]*\'/g;
       let found = text.match(regex);
       if (found) {
-        found = found[0];
-        folder = found.split("'")[1];
-        files = fs.readdirSync(path.join(process.cwd(), 'src', folder));
-        str = `let importsX = [${files.map(
-          (x) => `import ${x.split('.')[0]} from './${folder}/${x}'`
-        )}]
-        `;
-
-        str = `let importsX = {${files.map(
-          (x) => `'./${folder}/${x}':import('./${folder}/${x}')`
-        )}}
-
-
-        console.log(importsX)`;
-        text = text.replace(found, str).replace('||=', '||');
-        //#
-        const regex2 = /resolveFile\((.*?)\)/g;
-
-        let found2 = text.match(regex2);
-        if (found2) {
-          try {
-            found = found2[0];
-            replaced = found.replace('resolveFile', 'fs.readFileSync');
-            content = eval(replaced);
-            text = text.replace(found, '`' + content + '`');
-          } catch (error) {
-            console;
-          }
-        }
-        //#
-
-        return {
-          contents: text,
-          loader: 'jsx',
-        };
+        return CustomSyntax(found, text, args.path);
       }
       // delete all comments from the file
       const regex2 = /\/\/.*\n/g;
