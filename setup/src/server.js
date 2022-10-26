@@ -1,9 +1,7 @@
 import App from './App.js';
 import KraftServer from 'kraftjs/ssr';
 
-const KraftApp = new KraftServer({
-  App: App,
-});
+const KraftApp = new KraftServer({ App });
 
 const app = KraftApp(); // kraft will automatically respond to requsts with html ...
 

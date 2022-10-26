@@ -4,7 +4,6 @@ const esbuild = require('esbuild');
 const path = require('path');
 const fs = require('fs');
 const userConf = require('./conf.js');
-
 function kills(x, ca) {
   try {
     return ca();
@@ -12,12 +11,12 @@ function kills(x, ca) {
     return x;
   }
 }
-
 const resolve = (...args) => {
   return kills(false, () => {
     return path.resolve(process.cwd(), ...args);
   });
 };
+
 const dirFile = (...args) => {
   return kills([], () => {
     return fs.readdirSync(path.resolve(process.cwd(), ...args));
@@ -30,19 +29,16 @@ const delFile = (...args) => {
 const changeIn = (str, oldStr, newStr) => {
   return str.split(oldStr).join(newStr);
 };
-kills(null, () => {
-  fs.rmdirSync(process.cwd() + '/public/dist', { recursive: true });
+dirFile('public', 'dist', 'chunks').forEach((x) => {
+  kills(null, () => {
+    delFile('public', 'dist', 'chunks', x);
+  });
+});
 
-  dirFile('public', 'dist').forEach((x) => {
-    try {
-      delFile('public', 'dist', x);
-    } catch (error) {}
-  });
-  dirFile('public', 'server').forEach((x) => {
-    try {
-      delFile('public', 'server', x);
-    } catch (error) {}
-  });
+kills(null, () => {
+  fs.rmdirSync(process.cwd() + '/public/dist/chunks', { recursive: true });
+  fs.rmdirSync(process.cwd() + '/public/dist/', { recursive: true });
+
   dirFile('public', 'dist').forEach((x) => {
     if (x.includes('-ks-')) {
       console.log(x);
@@ -56,120 +52,47 @@ kills(null, () => {
     }
   });
 });
-let names = dirFile('src', 'pages')
+
+const names = dirFile('src', 'pages')
   .map((x, i) => './src/pages/' + x)
   .concat(dirFile('src').map((x) => './src/' + x));
-console.log(names);
 
-const conf = require('./conf.js');
-
-//
-
-//
-
-let BmsPlug = {
-  name: 'BmsPlug',
-  setup(build) {
-    build.onStart(() => {
-      console.log('build started');
-    });
-    build.onEnd((result) => {
-      console.log(`build ended with ${result.errors.length} errors`);
-    });
-    build.onLoad({ filter: /\.js*|.ts*/ }, async (args) => {
-      let envs = require('@babel/preset-env');
-      let react = require('@babel/preset-react');
-      if (
-        args.path.includes('css') ||
-        args.path.includes('node_modules') ||
-        args.path.includes('json')
-      )
-        return;
-      let text = await fs.promises.readFile(args.path, 'utf8');
-      let newIndex = text;
-      for (var key in userConf.define) {
-        newIndex = changeIn(newIndex, key, userConf.define[key]);
-      }
-
-      //   search for resolve('*') and replace it with content of the file
-      const regex = /resolveFile\((.*?)\)/g;
-      let found = newIndex.match(regex);
-      if (found) {
-        try {
-          found = found[0];
-          replaced = found.replace('resolveFile', 'fs.readFileSync');
-          content = eval(replaced);
-          newIndex = newIndex.replace(found, '`' + content + '`');
-          newIndex = newIndex.replace('||=', '||');
-          newIndex = await require('@babel/core').transformAsync(newIndex, {
-            presets: [envs, react],
-          });
-        } catch (error) {}
-      }
-
-      return {
-        contents: newIndex.code,
-        loader: 'jsx',
-      };
-    });
-  },
-};
-names = names.filter((x) => x !== './src/server.js' && !x.includes('css'));
-
+const { BmsPlug, Decors, Defines } = require('./blugins');
 let result = require('esbuild')
   .build({
     entryPoints: names,
-    chunkNames: 'chunks/[name][hash][ext]',
+    chunkNames: 'chunks/[hash][ext]',
     keepNames: true,
-    target: 'es2015',
-    sourcemap: 'inline',
+    sourcemap: 'external',
     splitting: true,
-
     allowOverwrite: true,
     outdir: 'public/dist',
     loader: { '.js': 'jsx' },
-    define: {
-      'process.env.NODE_ENV': "'production'",
-    },
+
     plugins: [
+      Decors,
       alias({
         '@pages': path.resolve('./src/pages'),
         '@router': path.resolve('./src/router.jsx'),
       }),
       BmsPlug,
+      Defines,
+      Decors,
     ],
     bundle: true,
-    format: 'esm',
     platform: 'node',
+    format: 'esm',
     watch: false,
     minify: true,
   })
-  .then((result) => {
-    // read public/index.html
-
-    try {
-      const index = fs.readFileSync(resolve('public', 'index.html'), 'utf8');
-      let newIndex = index;
-      for (var key in userConf.define) {
-        console.log(key);
-        newIndex = changeIn(newIndex, key, userConf.define[key]);
-      }
-
-      // save to public/dist/index.html
-      fs.writeFileSync(resolve('public', 'dist', 'index.html'), newIndex);
-      console.log('watching...');
-      console.log('build finished...');
-
-      console.log('build finished...');
-    } catch (error) {
-      console.log(error);
+  .then(async () => {
+    const index = fs.readFileSync(resolve('public', 'index.html'), 'utf8');
+    let newIndex = index;
+    for (var key in userConf.define) {
+      console.log(key);
+      newIndex = changeIn(newIndex, key, userConf.define[key]);
     }
+    fs.writeFileSync(resolve('public', 'dist', 'index.html'), newIndex);
+    fs.writeFileSync(resolve('public', 'dist', '404.html'), newIndex);
+    console.log('build finished...');
   });
-
-process.on('unhandledRejection', (reason, p) => {
-  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
-  // application specific logging, throwing an error, or other logic here
-});
-process.on('uncaughtException', (err) => {
-  console.log('uncaughtException', err);
-});

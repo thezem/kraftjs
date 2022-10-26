@@ -82,7 +82,6 @@ async function KraftExpressServer(req, res, next, App, imports) {
 
   print(req.path);
   res.send(dataReturn);
-  next();
   return;
 }
 function Must(x, y, z) {
@@ -106,7 +105,7 @@ class KraftServer {
     app.start = app.listen;
     app.listen = (...args) => {
       app.get('/', async (req, res, next) => {
-        await KraftExpressServer(req, res, next, options.App, importsX);
+        return await KraftExpressServer(req, res, next, options.App, importsX);
       });
       app.use('/', express.static('public/server'));
       app.use('/pages', express.static('public/server/pages'));
