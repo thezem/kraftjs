@@ -3,7 +3,11 @@ import React from '../';
 
 import ReactDOMServer from 'react-dom/server';
 import fs from 'fs';
-let html = fs.readFileSync('./public/server/index.html', 'utf8');
+import path from 'path';
+let html = fs.readFileSync(
+  path.join(process.cwd(), 'public', 'server', 'index.html'),
+  'utf8'
+);
 import express from 'express';
 import RouterForServer from '../server/index';
 let toArr = (kids) => {
