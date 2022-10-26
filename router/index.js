@@ -727,9 +727,9 @@ export const RouterServer = (obs = {}) => {
     }
 
     // predownload all the components
-    for (const key in routes.routes) {
-      _ImportComp(key);
-    }
+    // for (const key in routes.routes) {
+    //   _ImportComp(key);
+    // }
     return () => {
       onunmount && onunmount();
     };

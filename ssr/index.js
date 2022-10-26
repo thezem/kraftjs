@@ -9,6 +9,7 @@ const file = path.resolve(process.cwd(), 'public/server', 'index.html');
 let html = resolveFile;
 import express from 'express';
 import RouterForServer from '../server/index';
+import { ESRCH } from 'constants';
 let toArr = (kids) => {
   if (Array.isArray(kids)) {
     return kids;
@@ -115,6 +116,15 @@ class KraftServer {
 
     app.start = app.listen;
     app.listen = (...args) => {
+      app.use((req, res, next) => {
+        if (NotPage(req.path)) {
+          res.setHeader('Cache-Control', 'public, max-age=360000');
+        }
+        res.setHeader('Access-Control-Max-Age', '600');
+        res.setHeader('x-powered-by', 'Kraftjs');
+        next();
+      });
+
       app.get('/', async (req, res, next) => {
         await KraftExpressServer(req, res, next, options.App, importsX);
       });
