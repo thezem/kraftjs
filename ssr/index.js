@@ -53,7 +53,11 @@ async function KraftExpressServer(req, res, next, App, imports) {
           return;
         }
         if (el.type.name == 'RouterServer') {
-          els.push(await RouterForServer(el.props.children, imports));
+          let C = await RouterForServer(el.props.children, imports);
+          if (C.Comp.name == 'Error' || C.Comp.name == 'NotFound') {
+            res.status(400);
+          }
+          els.push(C);
         } else {
           els.push({ Comp: el.type, props: el.props });
         }

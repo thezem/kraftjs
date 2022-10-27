@@ -57,9 +57,9 @@ const names = dirFile('src', 'pages')
   .map((x, i) => './src/pages/' + x)
   .concat(dirFile('src').map((x) => './src/' + x));
 
-const { BmsPlug, Decors, Defines } = require('./blugins');
+const { Decors, BmsPlug } = require('./blugins');
 
-let result = require('esbuild')
+esbuild
   .build({
     entryPoints: names,
     chunkNames: 'chunks/[hash][ext]',
@@ -81,7 +81,6 @@ let result = require('esbuild')
     bundle: true,
     platform: 'node',
     format: 'esm',
-
     watch: false,
     minify: true,
   })
@@ -102,6 +101,7 @@ let result = require('esbuild')
         loader: { '.js': 'jsx' },
 
         plugins: [
+          BmsPlug,
           alias({
             '@pages': path.resolve('./src/pages'),
             '@router': path.resolve('./src/router.jsx'),

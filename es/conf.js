@@ -22,10 +22,12 @@ for (var key in kr.define) {
   kr.define[key] = JSON.stringify(kr.define[key]);
 }
 console.log(kr);
-module.exports = {
+let ex = {
   define: {
+    ...kr.define,
     _CACHEDATE_: `kr${GenId()}`,
     'process.env.NODE_ENV': `"production"`,
   },
-  ...kr,
 };
+console.log(ex);
+module.exports = ex;

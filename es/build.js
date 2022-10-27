@@ -57,8 +57,9 @@ const names = dirFile('src', 'pages')
   .map((x, i) => './src/pages/' + x)
   .concat(dirFile('src').map((x) => './src/' + x));
 
-const { BmsPlug, Decors, Defines } = require('./blugins');
-let result = require('esbuild')
+const { Decors } = require('./blugins');
+
+esbuild
   .build({
     entryPoints: names,
     chunkNames: 'chunks/[hash][ext]',
@@ -68,15 +69,12 @@ let result = require('esbuild')
     allowOverwrite: true,
     outdir: 'public/dist/static',
     loader: { '.js': 'jsx' },
-
+    define: userConf.define,
     plugins: [
-      Decors,
       alias({
         '@pages': path.resolve('./src/pages'),
         '@router': path.resolve('./src/router.jsx'),
       }),
-      BmsPlug,
-      Defines,
       Decors,
     ],
     bundle: true,
