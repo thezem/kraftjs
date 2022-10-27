@@ -269,30 +269,55 @@ function _routeParser(obj, path = location.pathname) {
 
   return newparams;
 }
+let hashString = (str) => {
+  let hash = 0,
+    i,
+    chr;
+  if (str.length === 0) return hash;
+  for (i = 0; i < str.length; i++) {
+    chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+function serverRenderdComponents(name) {
+  // if page is server renderd , check if component exist on the server before trying to fetch it
+  if (!window.kraftServer) return true;
+  if (!window.kraftClientReadyComponents) return true;
+  return window.kraftClientReadyComponents.includes(
+    hashString('./pages/' + name + '.js')
+  );
+}
 
 async function _ImportComp(x) {
   if (typeof x === 'function') return x;
+  if (!serverRenderdComponents(x)) return false;
   var Found = routes.GetComponent(x);
   if (Found) {
     return Found[x];
   }
   try {
     if (window.addEventListener) {
-      return await import('/static/pages/' + x + '.js').then((C) => {
-        // console.log(C);
-        routes.SaveComponent(x, C);
-        return C;
-      });
+      return await import('/static/pages/' + x + '.js?' + _CACHEDATE_).then(
+        (C) => {
+          // console.log(C);
+          routes.SaveComponent(x, C);
+          return C;
+        }
+      );
     } else {
     }
   } catch (error) {
     try {
-      return await import('./static/pages/' + x + '.js').then((C) => {
-        // console.log(C);
+      return await import('./static/pages/' + x + '.js?' + _CACHEDATE_).then(
+        (C) => {
+          // console.log(C);
 
-        routes.SaveComponent(x, C);
-        return C;
-      });
+          routes.SaveComponent(x, C);
+          return C;
+        }
+      );
     } catch (error) {}
     // console.log(x, error);
     // console.log('Cannot find module', x);
@@ -418,19 +443,6 @@ async function State(event, callback = () => {}) {
   let Com = await getComponet(name, newParams.props);
   callback(Com, newParams.props);
   return;
-  if (newParams.path == '404') {
-    _ImportComp(name).then((comp) => {
-      callback(comp, newParams.props);
-      clearTimeout(_WaitingCursor);
-      document.body.style.cursor = '';
-    });
-  } else {
-    _ImportComp(newParams.path).then((comp) => {
-      callback(comp, newParams.props);
-      clearTimeout(_WaitingCursor);
-      document.body.style.cursor = '';
-    });
-  }
 }
 
 function _ParseCompChildren(obs) {
@@ -727,9 +739,9 @@ export const RouterServer = (obs = {}) => {
     }
 
     // predownload all the components
-    for (const key in routes.routes) {
-      _ImportComp(key);
-    }
+    // for (const key in routes.routes) {
+    //   _ImportComp(key);
+    // }
     return () => {
       onunmount && onunmount();
     };

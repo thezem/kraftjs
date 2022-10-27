@@ -13,7 +13,7 @@ const React = require('react');
 const NewReact = Object.assign({}, React);
 
 const originalCreateElement = NewReact.createElement;
-const { krFor, Head } = require('./beta');
+const { Head } = require('./beta');
 
 const createElement = (...args) => {
   if (args[1] && args[1].hasOwnProperty('if')) {
@@ -23,12 +23,15 @@ const createElement = (...args) => {
       delete args[1].if;
     }
   }
+
   var ele = originalCreateElement(...args);
+
   return ele;
 };
 
 const { useRouter, InlineStyle } = require('./router/hooks');
-
+var window = globalThis || {};
+window.React = NewReact;
 NewReact.createElement = createElement;
 module.exports = NewReact;
 module.exports.useRouter = useRouter;

@@ -1,5 +1,6 @@
 const React = require('react');
-
+const { useEffect, useState } = React;
+const { hydrate } = require('react-dom');
 const originalCreateElement = React.createElement;
 
 let toArr = (kids) => {
@@ -111,7 +112,7 @@ const customToStaticMarkup = (ele) => {
         return e + '="' + ele.props[e] + '"';
       })
       .join(' ');
-    str = `<${ele.type}${props}>`;
+    str = `<${ele.type} ${props}>`;
 
     if (ele.props?.children) {
       if (Array.isArray(ele.props.children)) {
@@ -135,17 +136,35 @@ const customToStaticMarkup = (ele) => {
 
   return str;
 };
+let hashString = (str) => {
+  let hash = 0,
+    i,
+    chr;
+  if (str.length === 0) return hash;
+  for (i = 0; i < str.length; i++) {
+    chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+let Null = (props) => {
+  return <>{props.children}</>;
+};
 const Head = (props) => {
-  let el = originalCreateElement('head', props, props.children);
-  let string = customToStaticMarkup(el);
+  let el = <Null>{props.children}</Null>;
+  useEffect(() => {
+    const container = document.querySelector('head');
+    hydrate(el, container);
+    return () => {
+      hydrate(<Null />, container);
+    };
+  }, []);
   if (typeof document !== 'undefined') {
-    let docHtml = document.querySelector('head').innerHTML;
-    document.querySelector('head').innerHTML =
-      string.replace('<head>', '').replace('</head>', '') + docHtml;
     return null;
   }
-
-  return el;
+  let ServerSideEl = originalCreateElement('head', props, props.children);
+  return ServerSideEl;
 };
 
 module.exports = {

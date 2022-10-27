@@ -2,12 +2,12 @@ module.exports = {
   dev: {
     define: {
       APIV1: 'https://localhost:3000/api/v1',
-      userConfig: `${__filename}`,
+      'process.env.NODE_ENV': `"development"`,
     },
   },
   prod: {
     define: {
-      'process.env.NODE_ENV': "'production'",
+      'process.env.NODE_ENV': `"production"`,
     },
   },
 };
