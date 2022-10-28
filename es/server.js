@@ -141,9 +141,34 @@ esbuild
           devDependencies: {},
           description: '',
         };
+
+        let vercel = {
+          version: 2,
+          builds: [
+            {
+              src: '/server.js',
+              use: '@vercel/node',
+            },
+            { src: '/static/**', use: '@vercel/static' },
+          ],
+
+          rewrites: [
+            {
+              source: '/static/:path*',
+              destination: '/static/:path*',
+            },
+
+            { source: '/(.*)', destination: '/server.js' },
+          ],
+        };
+
         await fs.promises.writeFile(
           path.join(process.cwd(), 'public', 'server', 'package.json'),
           JSON.stringify(package, null, 2)
+        );
+        await fs.promises.writeFile(
+          path.join(process.cwd(), 'public', 'server', 'vercel.json'),
+          JSON.stringify(vercel, null, 2)
         );
 
         const index = fs.readFileSync(resolve('public', 'index.html'), 'utf8');

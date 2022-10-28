@@ -32,4 +32,5 @@ let ex = {
     'process.env.NODE_ENV': `"production"`,
   },
 };
+console.log(ex);
 module.exports = ex;

@@ -24,13 +24,13 @@ var copyRecursiveSync = function (src, dest) {
 };
 
 copyRecursiveSync(path.resolve(__dirname, '../setup'), process.cwd());
-console.log(__filename);
+// console.log(__filename);
 // find package.json in root folder
 // add scripts
 if (fs.existsSync(path.resolve(process.cwd(), 'package.json'))) {
   const packageJson = require(path.resolve(process.cwd(), 'package.json'));
   let scripts = {
-    ccr: 'kraftjs --build client',
+    csr: 'kraftjs --build client',
     ssr: 'kraftjs --build server --prod',
     start: 'node public/server',
     set: 'kraftjs --setup',
