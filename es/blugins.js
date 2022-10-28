@@ -220,6 +220,35 @@ let Defines = {
     });
   },
 };
+function mini(x) {
+  // comments like /**
+  return x
+    .replace(/>\s+</g, '><')
+    .replace(/\s{2,4}/g, ' ')
+    .replace(/<!--.*?-->/g, '')
+    .replace(/\/\*.*?\*\//g, '');
+}
+let has = (arr) => {
+  return arr.filter((x) => x.includes('has'));
+};
+String.prototype.has = function (arr) {
+  return arr.filter((x) => this.includes(x));
+};
+let minify = {
+  name: 'minify',
+  setup(build) {
+    build.onLoad({ filter: /(.*?)$/g }, async (args) => {
+      let text = await fs.promises.readFile(args.path, 'utf8');
+      if (args.path.has(['.html', '.css', '.js'])) {
+        text = mini(text);
+      }
+      return {
+        contents: text,
+        loader: args.path.split('.')[1],
+      };
+    });
+  },
+};
 
 module.exports = {
   BmsPlugFn,
@@ -227,5 +256,6 @@ module.exports = {
   handleStr,
   CustomSyntax,
   Decors,
+  minify,
   Defines,
 };

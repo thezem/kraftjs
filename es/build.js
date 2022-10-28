@@ -53,30 +53,29 @@ kills(null, () => {
   });
 });
 
-const names = dirFile('src', 'pages')
+let names = dirFile('src', 'pages')
   .map((x, i) => './src/pages/' + x)
   .concat(dirFile('src').map((x) => './src/' + x));
 
-const { Decors } = require('./blugins');
-
+names = names.filter((x) => {
+  return !x.includes('.css');
+});
+const { Decors, minify } = require('./blugins');
+// console.log(names);
 esbuild
   .build({
     entryPoints: names,
     chunkNames: 'chunks/[hash][ext]',
+    splitting: true,
     keepNames: true,
     sourcemap: 'external',
-    splitting: true,
     allowOverwrite: true,
     outdir: 'public/dist/static',
     loader: { '.js': 'jsx' },
+    external: ['express'],
     define: userConf.define,
-    plugins: [
-      alias({
-        '@pages': path.resolve('./src/pages'),
-        '@router': path.resolve('./src/router.jsx'),
-      }),
-      Decors,
-    ],
+    logLevel: 'info',
+    plugins: [Decors, minify],
     bundle: true,
     platform: 'node',
     format: 'esm',

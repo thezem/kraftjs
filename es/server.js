@@ -37,7 +37,7 @@ dirFile('public', 'server', 'chunks').forEach((x) => {
 
 kills(null, () => {
   fs.rmdirSync(process.cwd() + '/public/server/chunks', { recursive: true });
-  // fs.rmdirSync(process.cwd() + '/public/server/', { recursive: true });
+  fs.rmdirSync(process.cwd() + '/public/server/', { recursive: true });
 
   dirFile('public', 'server').forEach((x) => {
     if (x.includes('-ks-')) {
@@ -53,46 +53,49 @@ kills(null, () => {
   });
 });
 
-const names = dirFile('src', 'pages')
+let names = dirFile('src', 'pages')
   .map((x, i) => './src/pages/' + x)
   .concat(dirFile('src').map((x) => './src/' + x));
 
-const { Decors, BmsPlug } = require('./blugins');
+names = names.filter((x) => {
+  // not css and not directory
+  return !x.includes('.css') && fs.statSync(x).isFile();
+});
+const { Decors, BmsPlug, minify } = require('./blugins');
+// console.log(names);
 
 esbuild
   .build({
     entryPoints: names,
     chunkNames: 'chunks/[hash][ext]',
+    splitting: true,
     keepNames: true,
     sourcemap: 'external',
-    splitting: true,
     allowOverwrite: true,
     outdir: 'public/server/static',
     loader: { '.js': 'jsx' },
+    external: ['express'],
     define: userConf.define,
-
-    plugins: [
-      alias({
-        '@pages': path.resolve('./src/pages'),
-        '@router': path.resolve('./src/router.jsx'),
-      }),
-      Decors,
-    ],
+    logLevel: 'info',
+    plugins: [Decors, minify],
     bundle: true,
     platform: 'node',
     format: 'esm',
     watch: false,
     minify: true,
   })
-  .then(() => {
+  .then((res) => {
     require('esbuild')
       .build({
         entryPoints: ['./src/server.js'],
         chunkNames: 'chunks/[name][hash][ext]',
+        splitting: false,
+
         keepNames: true,
         // sourcemap: false,
         sourcemap: false,
         define: userConf.define,
+        logLevel: 'info',
 
         splitting: false,
 
@@ -100,18 +103,12 @@ esbuild
         outfile: 'public/server/server.js',
         loader: { '.js': 'jsx' },
 
-        plugins: [
-          BmsPlug,
-          alias({
-            '@pages': path.resolve('./src/pages'),
-            '@router': path.resolve('./src/router.jsx'),
-          }),
-          Decors,
-        ],
+        plugins: [BmsPlug, Decors],
 
         bundle: true,
+        external: ['express'],
         platform: 'node',
-        format: 'cjs',
+        format: 'iife',
 
         watch: false,
         minify: true,

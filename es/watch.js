@@ -58,26 +58,22 @@ const names = dirFile('src', 'pages')
   .map((x, i) => './src/pages/' + x)
   .concat(dirFile('src').map((x) => './src/' + x));
 
-const { Decors } = require('./blugins');
+const { Decors, minify } = require('./blugins');
 
 esbuild
   .build({
     entryPoints: names,
-    chunkNames: 'chunks/[hash][ext]',
+    chunkNames: 'chunks/[name][ext]',
+    splitting: true,
     keepNames: true,
     sourcemap: 'external',
-    splitting: true,
     allowOverwrite: true,
     outdir: 'public/dist/static',
     loader: { '.js': 'jsx' },
+    external: ['express'],
     define: userConf.define,
-    plugins: [
-      alias({
-        '@pages': path.resolve('./src/pages'),
-        '@router': path.resolve('./src/router.jsx'),
-      }),
-      Decors,
-    ],
+    logLevel: 'info',
+    plugins: [Decors, minify],
     bundle: true,
     platform: 'node',
     format: 'esm',
@@ -96,19 +92,20 @@ esbuild
 
     // save to public/dist/index.html
     fs.writeFileSync(resolve('public', 'dist', 'index.html'), newIndex);
+
+    let consc = {
+      open: false,
+      port: process.argv[4] || 3000,
+      root: './public/dist',
+      file: 'index.html',
+    };
+    liveServer.start(consc);
+
+    setTimeout(() => {
+      console.log(
+        'server started at http://localhost:' + (process.argv[4] || 3000)
+      );
+    }, 1500);
+
     console.log('watching...');
   });
-
-let consc = {
-  open: false,
-  port: process.argv[4] || 3000,
-  root: './public/dist',
-  file: 'index.html',
-};
-liveServer.start(consc);
-
-setTimeout(() => {
-  console.log(
-    'server started at http://localhost:' + (process.argv[4] || 3000)
-  );
-}, 1500);

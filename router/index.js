@@ -370,8 +370,6 @@ export function Link(props) {
     } catch (error) {
       return <External {...props} />;
     }
-    const [Component, setComponent] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
     const [className, setclassName] = useState(
       props.className ? props.className : ''
     );

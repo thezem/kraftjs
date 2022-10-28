@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 var window = globalThis || {};
 
 function useSession(defKey, defaultValue = false) {
+  AppLocals['_reactKeys'] = AppLocals['_reactKeys'] || {};
+
+  let len = Object.keys(AppLocals['_reactKeys']).length;
+  if (len > 22) {
+    let newKeys = AppLocals['_reactKeys'];
+    delete newKeys[valus[0]];
+    AppLocals['_reactKeys'] = newKeys;
+  }
+
   var _reactKeys = globalThis._reactKeys || {};
 
   // console.log(_reactKeys[defKey]);
@@ -20,7 +29,7 @@ function useSession(defKey, defaultValue = false) {
         return JSON.parse(value);
       } else {
         window._reactKeys[defKey][keyName] = JSON.stringify(defaultValue);
-        // AppLocals['_reactKeys'] = window._reactKeys;
+        AppLocals['_reactKeys'] = window._reactKeys;
 
         return defaultValue;
       }
@@ -32,7 +41,7 @@ function useSession(defKey, defaultValue = false) {
   const setValue = (newValue) => {
     try {
       window._reactKeys[defKey][keyName] = JSON.stringify(newValue);
-      // AppLocals['_reactKeys'] = _reactKeys;
+      AppLocals['_reactKeys'] = _reactKeys;
       setStoredValue(newValue);
     } catch (err) {}
     setStoredValue(newValue);

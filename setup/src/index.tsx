@@ -26,9 +26,6 @@ function ServerRenderd() {
       CL.removeChild(CL.lastChild);
     });
     hydrate(<App />, CL);
-    kills(null, () => {
-      CL.removeChild(CL.lastChild);
-    });
     container.replaceWith(CL);
     console.log('Hydrated');
   } catch (error) {

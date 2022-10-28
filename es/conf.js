@@ -1,8 +1,11 @@
 function GenId() {
   // every build has it's own cache key , so we can use it to invalidate the cache on new builds
   // thils will be used by the router to prevent old builds from loading the wrong page
-  let id = Math.random().toString(36).substring(2, 9);
-  return id.toUpperCase();
+  // let id = Math.random().toString(36).substring(2, 9);
+  // return id.toUpperCase();
+  let key = Math.floor(Math.random() * 600);
+
+  return String(key).repeat(2);
 }
 const path = require('path');
 const fs = require('fs');
@@ -25,9 +28,8 @@ for (var key in kr.define) {
 let ex = {
   define: {
     ...kr.define,
-    _CACHEDATE_: JSON.stringify(`kr${GenId()}`),
+    _CACHEDATE_: `${GenId()}`,
     'process.env.NODE_ENV': `"production"`,
   },
 };
-console.log(ex);
 module.exports = ex;

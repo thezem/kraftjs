@@ -29,6 +29,14 @@ let hashString = (str) => {
   }
   return hash;
 };
+
+function minifyHtml(html) {
+  return html
+    .replace(/>\s+</g, '><')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/<!--.*?-->/g, '')
+    .trim();
+}
 export async function KraftExpressServer(req, res, next, App, imports) {
   let clientReadyComponents = Object.keys(imports).map((x) => {
     return hashString(x);
@@ -99,6 +107,6 @@ export async function KraftExpressServer(req, res, next, App, imports) {
       )}</div>
       `
     );
-  res.send(dataReturn);
+  res.send(minifyHtml(dataReturn));
   return;
 }
