@@ -58,10 +58,15 @@ let names = dirFile('src', 'pages')
   .concat(dirFile('src').map((x) => './src/' + x));
 
 names = names.filter((x) => {
-  return !x.includes('.css');
+  // not css and not directory
+  return (
+    !x.includes('.css') &&
+    !x.includes('./src/server.js') &&
+    fs.statSync(x).isFile()
+  );
 });
 const { Decors, minify } = require('./blugins');
-console.log(names);
+
 esbuild
   .build({
     entryPoints: names,

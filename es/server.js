@@ -61,12 +61,19 @@ names = names.filter((x) => {
   // not css and not directory
   return !x.includes('.css') && fs.statSync(x).isFile();
 });
+clientNames = names.filter((x) => {
+  // not css and not directory
+  return (
+    !x.includes('.css') &&
+    !x.includes('./src/server.js') &&
+    fs.statSync(x).isFile()
+  );
+});
 const { Decors, BmsPlug, minify } = require('./blugins');
-console.log(names);
 
 esbuild
   .build({
-    entryPoints: names,
+    entryPoints: clientNames,
     chunkNames: 'chunks/[hash][ext]',
     splitting: true,
     keepNames: true,
@@ -108,7 +115,7 @@ esbuild
         bundle: true,
         external: ['express'],
         platform: 'node',
-        format: 'iife',
+        format: 'cjs',
 
         watch: false,
         minify: true,

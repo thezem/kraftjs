@@ -32,7 +32,7 @@ if (fs.existsSync(path.resolve(process.cwd(), 'package.json'))) {
   let scripts = {
     ccr: 'kraftjs --build client',
     ssr: 'kraftjs --build server --prod',
-    startServer: 'node public/server',
+    start: 'node public/server',
     set: 'kraftjs --setup',
     dev: 'kraftjs --dev',
   };
