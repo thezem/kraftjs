@@ -1,5 +1,5 @@
 const React = require('react');
-const { useEffect, useState } = React;
+const { useEffect } = React;
 const { hydrate } = require('react-dom');
 const originalCreateElement = React.createElement;
 
@@ -118,7 +118,11 @@ const customToStaticMarkup = (ele) => {
       if (Array.isArray(ele.props.children)) {
         toArr(ele.props.children).forEach((e) => {
           try {
-            str += customToStaticMarkup(e);
+            if (typeof e == 'function') {
+              str += customToStaticMarkup(e());
+            } else {
+              str += customToStaticMarkup(e);
+            }
           } catch (error) {
             return;
           }
@@ -127,7 +131,11 @@ const customToStaticMarkup = (ele) => {
         if (typeof ele.props.children === 'string') {
           str += ele.props.children;
         } else {
-          str += customToStaticMarkup(ele.props.children);
+          if (typeof e == 'function') {
+            str += customToStaticMarkup(ele.props.children());
+          } else {
+            str += customToStaticMarkup(ele.props.children);
+          }
         }
       }
     }

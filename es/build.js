@@ -61,7 +61,7 @@ names = names.filter((x) => {
   return !x.includes('.css');
 });
 const { Decors, minify } = require('./blugins');
-// console.log(names);
+console.log(names);
 esbuild
   .build({
     entryPoints: names,

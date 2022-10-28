@@ -743,7 +743,7 @@ export const RouterServer = (obs = {}) => {
     return () => {
       onunmount && onunmount();
     };
-  }, []);
+  }, [Component]);
 
   if (isLoading) {
     if (fallback) {

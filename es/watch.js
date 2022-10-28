@@ -63,7 +63,7 @@ const { Decors, minify } = require('./blugins');
 esbuild
   .build({
     entryPoints: names,
-    chunkNames: 'chunks/[name][ext]',
+    chunkNames: 'chunks/[hash][ext]',
     splitting: true,
     keepNames: true,
     sourcemap: 'external',

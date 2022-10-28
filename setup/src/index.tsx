@@ -4,29 +4,27 @@
 import React from 'kraftjs';
 import { hydrate, render } from 'react-dom';
 import { createRoot } from 'react-dom/client';
+
 import App from './App';
-function kills(x, ca) {
-  try {
-    return ca();
-  } catch (error) {
-    return x;
-  }
-}
+
 function clientRenderd() {
   const container = document.getElementById('root');
+  const CL = container.cloneNode(true);
+
   const root = createRoot(container);
   root.render(<App />);
   console.log('Client render');
 }
 function ServerRenderd() {
   const container = document.getElementById('root');
-  const CL = container.cloneNode(true);
+
   try {
-    kills(null, () => {
-      CL.removeChild(CL.lastChild);
-    });
-    hydrate(<App />, CL);
-    container.replaceWith(CL);
+    hydrate(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+      container
+    );
     console.log('Hydrated');
   } catch (error) {
     console.log(error);
@@ -34,6 +32,7 @@ function ServerRenderd() {
     render(<App />, container);
   }
 }
+
 if (typeof document !== 'undefined' && window.addEventListener) {
   if (window.kraftServer) {
     ServerRenderd();

@@ -2,7 +2,6 @@ import React from '../';
 import ReactDOMServer from 'react-dom/server';
 const userConf = require('../es/conf.js');
 import RouterForServer from '../server/index';
-
 const html = resolveFile;
 let Defines = (x) => {
   const changeIn = (str, oldStr, newStr) => {
@@ -30,15 +29,28 @@ let hashString = (str) => {
   return hash;
 };
 
-function minifyHtml(html) {
-  return html
-    .replace(/>\s+</g, '><')
-    .replace(/\s{2,}/g, ' ')
-    .replace(/<!--.*?-->/g, '')
-    .trim();
+async function findHead(KraftApp) {
+  return await new Promise((resolve) => {
+    try {
+      KidToArr(KraftApp.props.children).forEach((el, i) => {
+        if (el.type.name == 'Head') {
+          let head = ReactDOMServer.renderToString(el);
+          let headString = head.replace('<head>', '').replace('</head>', '');
+          return resolve(headString);
+        }
+        if (i == KidToArr(KraftApp.props.children).length - 1) {
+          return resolve(' ');
+        }
+      });
+    } catch (e) {
+      resolve(' ');
+    }
+  });
 }
 export async function KraftExpressServer(req, res, next, App, imports) {
   let clientReadyComponents = Object.keys(imports).map((x) => {
+    /// kraft sends the pages names hash of the App to the client side
+    // kraft router compares the hashes before requesting the javascript to see if it exists
     return hashString(x);
   });
   global.location = {
@@ -59,54 +71,46 @@ export async function KraftExpressServer(req, res, next, App, imports) {
   global.AppLocals = global.AppLocals || {};
   const KraftApp = App();
   let els = [];
-  let headString = '';
-  await new Promise((resolve) => {
-    try {
-      KidToArr(KraftApp.props.children).forEach(async (el, i) => {
-        if (el.type.name == 'Head') {
-          let head = await ReactDOMServer.renderToString(el);
-          headString = head.replace('<head>', '').replace('</head>', '');
-          return;
-        }
-        if (el.type.name == 'RouterServer') {
-          let C = await RouterForServer(el.props.children, imports);
-          if (C.Comp.name == 'Error' || C.Comp.name == 'NotFound') {
-            res.status(400);
-          }
-          els.push(C);
-        } else {
-          els.push({ Comp: el.type, props: el.props });
-        }
-        res.setHeader('Cache-Control', 'max-age=360');
-
-        if (i == KidToArr(KraftApp.props.children).length - 1) resolve();
-      });
-    } catch (error) {
-      res.status(500).send('Internal Server Error');
-      resolve();
-    }
-  });
-
-  const dataReturn = Defines(html)
-    .replace(
-      '<head>',
-      `<head><script> window.kraftServer = true; 
+  let headString = await findHead(KraftApp);
+  console.log({ headString });
+  const dataReturn = Defines(html).replace(
+    '<head>',
+    `<head><script> window.kraftServer = true; 
         window.kraftClientReadyComponents = ${JSON.stringify(
           clientReadyComponents
         )};
         </script>${headString}`
-    )
-    .replace(
-      '<div id="root"></div>',
-      `<div id="root">${ReactDOMServer.renderToString(
-        <React.Suspense fallback={<div>loading...</div>}>
-          {els.map((El, i) => {
-            return <El.Comp {...El.props} key={i} />;
-          })}
-        </React.Suspense>
-      )}</div>
-      `
-    );
-  res.send(minifyHtml(dataReturn));
+  );
+  let HeadBodyHtml = dataReturn.split('<body>');
+  res.setHeader('Cache-Control', 'max-age=360');
+  res.write(HeadBodyHtml[0]);
+  res.write('<body><div id="root">');
+  await new Promise((resolve) => {
+    try {
+      KidToArr(KraftApp.props.children).forEach(async (el, i) => {
+        switch (el.type.name) {
+          case 'Head':
+            return;
+          case 'head':
+            return;
+          case 'RouterServer':
+            let C = await RouterForServer(el.props.children, imports);
+            res.write(ReactDOMServer.renderToString(<C.Comp {...C.props} />));
+          default:
+            res.write(
+              ReactDOMServer.renderToString(<el.type {...el.props} key={i} />)
+            );
+        }
+        if (i == KidToArr(KraftApp.props.children).length - 1) resolve();
+      });
+    } catch (error) {
+      res.write(ReactDOMServer.renderToString(<KraftApp />));
+      res.status(500).send('Internal Server Error');
+      resolve();
+    }
+  });
+  res.write('</div></body>');
+  res.write(HeadBodyHtml[1].split('</body>')[1]);
+  res.end();
   return;
 }

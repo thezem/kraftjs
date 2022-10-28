@@ -62,7 +62,7 @@ names = names.filter((x) => {
   return !x.includes('.css') && fs.statSync(x).isFile();
 });
 const { Decors, BmsPlug, minify } = require('./blugins');
-// console.log(names);
+console.log(names);
 
 esbuild
   .build({
