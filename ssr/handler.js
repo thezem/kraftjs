@@ -1,5 +1,5 @@
 import React from '../';
-import ReactDOMServer from 'react-dom/server';
+import { renderToString } from 'react-dom/server';
 const userConf = require('../es/conf.js');
 import RouterForServer from '../server/index';
 const html = resolveFile;
@@ -34,7 +34,7 @@ async function findHead(KraftApp) {
     try {
       KidToArr(KraftApp.props.children).forEach((el, i) => {
         if (el.type.name == 'Head') {
-          let head = ReactDOMServer.renderToString(el);
+          let head = renderToString(el);
           let headString = head.replace('<head>', '').replace('</head>', '');
           return resolve(headString);
         }
@@ -72,7 +72,6 @@ export async function KraftExpressServer(req, res, next, App, imports) {
   const KraftApp = App();
   let els = [];
   let headString = await findHead(KraftApp);
-  console.log({ headString });
   const dataReturn = Defines(html).replace(
     '<head>',
     `<head><script> window.kraftServer = true; 
@@ -95,16 +94,14 @@ export async function KraftExpressServer(req, res, next, App, imports) {
             return;
           case 'RouterServer':
             let C = await RouterForServer(el.props.children, imports);
-            res.write(ReactDOMServer.renderToString(<C.Comp {...C.props} />));
+            res.write(renderToString(<C.Comp {...C.props} />));
           default:
-            res.write(
-              ReactDOMServer.renderToString(<el.type {...el.props} key={i} />)
-            );
+            res.write(renderToString(<el.type {...el.props} key={i} />));
         }
         if (i == KidToArr(KraftApp.props.children).length - 1) resolve();
       });
     } catch (error) {
-      res.write(ReactDOMServer.renderToString(<KraftApp />));
+      res.write(renderToString(<KraftApp />));
       res.status(500).send('Internal Server Error');
       resolve();
     }

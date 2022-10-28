@@ -4,6 +4,7 @@ export default function home(props) {
   const [name, setName] = useState([]);
   return (
     <div>
+      <h2>{name}</h2>
       <input
         type="text"
         placeholder="what's your name?"

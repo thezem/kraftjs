@@ -43,7 +43,8 @@ class KraftServer {
       app.get('/', async (req, res, next) => {
         await KraftExpressServer(req, res, next, options.App, importsX);
       });
-      app.use('/pages', express.static('public/server/pages'));
+      app.use('/static', express.static('public/server/static'));
+      app.use('/static', express.static('./static'));
       app.use('/', express.static('public/server'));
       app.use('/', async (req, res, next) => {
         await KraftExpressServer(req, res, next, options.App, importsX);
