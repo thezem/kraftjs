@@ -213,19 +213,29 @@ async function RouterForServer(obs, importsX = {}) {
   let name;
   thisPath == '/' ? (name = 'index') : (name = thisPath.replace(/\//, ''));
   Imported('./pages/' + name + '.js', importsX);
+  Imported('./pages/' + name + '/index.js', importsX);
   let Comp =
+    (await Imported('./pages/' + name, importsX).catch(async (err) => {
+      return false;
+    })) ||
     (await Imported('./pages/' + name + '.js', importsX).catch(async (err) => {
+      return false;
+    })) ||
+    (await Imported('./pages/' + name + '/index.js', importsX).catch(async (err) => {
       return false;
     })) ||
     (await Imported('./pages/' + params.path + '.js', importsX).catch((err) => {
       return false;
+    })) ||
+    (await Imported('./pages/' + params.path + '/index.js', importsX).catch((err) => {
+      return false;
     }));
 
   if (Comp) {
-    // console.log('Comp', Comp,params,name);
+    console.log('Comp', Comp,params,name);
     return { Comp, props: Comprops };
   } else {
-    // console.log(Comp);
+    console.log(Comp);
     return { Comp: Error, props: {} };
   }
 }

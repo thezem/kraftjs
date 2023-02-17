@@ -2,6 +2,8 @@ const alias = require('esbuild-plugin-alias');
 
 const esbuild = require('esbuild');
 const path = require('path');
+const exec = require('child_process').exec;
+const nodemon = require('nodemon');
 const fs = require('fs');
 const userConf = require('./conf.js');
 function kills(x, ca) {
@@ -57,20 +59,50 @@ let names = dirFile('src', 'pages')
   .map((x, i) => './src/pages/' + x)
   .concat(dirFile('src').map((x) => './src/' + x));
 
+console.log(names);
 names = names.filter((x) => {
   // not css and not directory
-  return !x.includes('.css') && fs.statSync(x).isFile();
+  return !x.includes('.css')
 });
 clientNames = names.filter((x) => {
   // not css and not directory
   return (
     !x.includes('.css') &&
-    !x.includes('./src/server.js') &&
-    fs.statSync(x).isFile()
+    !x.includes('./src/server.js')
   );
 });
 const { Decors, BmsPlug, minify } = require('./blugins');
 
+const buildServerFile =()=>{
+ return require('esbuild')
+  .build({
+    entryPoints: ['./src/server.js'],
+    chunkNames: 'chunks/[name][hash][ext]',
+    splitting: false,
+
+    keepNames: true,
+    // sourcemap: false,
+    sourcemap: false,
+    define: userConf.define,
+    logLevel: 'error',
+
+    splitting: false,
+
+    allowOverwrite: true,
+    outfile: 'public/server/server.js',
+    loader: { '.js': 'jsx' },
+
+    plugins: [BmsPlug, Decors],
+
+    bundle: true,
+    external: ['express'],
+    platform: 'node',
+    format: 'cjs',
+
+    watch: false,
+    minify: false,
+  })
+}
 esbuild
   .build({
     entryPoints: clientNames,
@@ -88,39 +120,11 @@ esbuild
     bundle: true,
     platform: 'node',
     format: 'esm',
-    watch: false,
+    watch: true,
     minify: true,
   })
   .then((res) => {
-    require('esbuild')
-      .build({
-        entryPoints: ['./src/server.js'],
-        chunkNames: 'chunks/[name][hash][ext]',
-        splitting: false,
-
-        keepNames: true,
-        // sourcemap: false,
-        sourcemap: false,
-        define: userConf.define,
-        logLevel: 'info',
-
-        splitting: false,
-
-        allowOverwrite: true,
-        outfile: 'public/server/server.js',
-        loader: { '.js': 'jsx' },
-
-        plugins: [BmsPlug, Decors],
-
-        bundle: true,
-        external: ['express'],
-        platform: 'node',
-        format: 'cjs',
-
-        watch: false,
-        minify: true,
-      })
-      .then(async (result) => {
+    buildServerFile().then(async (result) => {
         // /write package.json for server
         let package = {
           name: 'kraftserver',
@@ -181,5 +185,37 @@ esbuild
         // save to public/server/index.html
         fs.writeFileSync(resolve('public', 'server', 'index.html'), newIndex);
         console.log('build finished...');
-      });
-  });
+      }).then(()=>{
+        fs.watch(resolve('src','server.js'),()=>{
+          console.log('server.js changed');
+          buildServerFile()
+        })
+        fs.watch(resolve('src','pages'),()=>{
+          console.log('server.js changed');
+          buildServerFile()
+        })
+        // exec('nodemon public/server', (err, stdout, stderr) => {
+        //   if (err) {
+        //     console.error(err);
+        //     return;
+        //   }
+        //   console.log(stdout,'stdout');
+        // })
+        nodemon({
+          script: resolve('public','server','server.js'),
+          watch: resolve('public','server','server.js'),
+          ext: 'js',
+          stdout: false
+      })
+      .on('readable', function() {
+        this.stdout.on('data', function(chunk) {
+          console.log(chunk.toString('utf8'));
+        });
+        this.stderr.on('data', function(chunk) {
+          console.error(chunk.toString('utf8'));
+        });
+      })
+
+  })
+  })
+

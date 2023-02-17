@@ -282,6 +282,7 @@ let hashString = (str) => {
   return hash;
 };
 function serverRenderdComponents(name) {
+  console.log(name);
   // if page is server renderd , check if component exist on the server before trying to fetch it
   if (!window.kraftServer) return true;
   if (!window.kraftClientReadyComponents) return true;
@@ -292,7 +293,9 @@ function serverRenderdComponents(name) {
 
 async function _ImportComp(x) {
   if (typeof x === 'function') return x;
-  if (!serverRenderdComponents(x)) return false;
+  const isServerRenderd = !serverRenderdComponents(x)
+  console.log(isServerRenderd,x);
+  // if (!isServerRenderd) return false;
   var Found = routes.GetComponent(x);
   if (Found) {
     return Found[x];

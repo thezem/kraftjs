@@ -16,6 +16,7 @@ function NotPage(FilePath) {
     FilePath.endsWith('txt')
   );
 }
+
 class KraftServer {
   constructor(options) {
     Must(options, 'object', 'KraftServer');
@@ -47,7 +48,7 @@ class KraftServer {
       app.use('/static', express.static('./static'));
       app.use('/', express.static('public/server'));
       app.use('/', async (req, res, next) => {
-        await KraftExpressServer(req, res, next, options.App, importsX);
+      return await KraftExpressServer(req, res, next, options.App, importsX);
       });
       return app.start(...args);
     };
