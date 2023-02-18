@@ -28,13 +28,16 @@ class KraftServer {
   }
   start(options) {
     const app = express();
-    app.use(morgan('tiny'));
+    // app.use(morgan('tiny'));
 
     app.start = app.listen;
     app.listen = (...args) => {
       app.use((req, res, next) => {
         if (NotPage(req.path)) {
-          res.setHeader('Cache-Control', 'public, max-age=360000');
+          if (process.env.NODE_ENV === 'production') {
+            console.log(process.env.NODE_ENV);
+            res.setHeader('Cache-Control', 'public, max-age=360000');
+          }
         }
         res.setHeader('Access-Control-Max-Age', '600');
         res.setHeader('x-powered-by', 'Kraft-Express-js');
@@ -48,7 +51,7 @@ class KraftServer {
       app.use('/static', express.static('./static'));
       app.use('/', express.static('public/server'));
       app.use('/', async (req, res, next) => {
-      return await KraftExpressServer(req, res, next, options.App, importsX);
+        return await KraftExpressServer(req, res, next, options.App, importsX);
       });
       return app.start(...args);
     };

@@ -27,9 +27,9 @@ for (var key in kr.define) {
 }
 let ex = {
   define: {
-    ...kr.define,
     _CACHEDATE_: `${GenId()}`,
     'process.env.NODE_ENV': `"production"`,
+    ...kr.define,
   },
 };
 console.log(ex);

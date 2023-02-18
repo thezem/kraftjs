@@ -62,54 +62,46 @@ let names = dirFile('src', 'pages')
 console.log(names);
 names = names.filter((x) => {
   // not css and not directory
-  return !x.includes('.css')
+  return !x.includes('.css');
 });
 clientNames = names.filter((x) => {
   // not css and not directory
-  return (
-    !x.includes('.css') &&
-    !x.includes('./src/server.js')
-  );
+  return !x.includes('.css') && !x.includes('./src/server.js');
 });
 const { Decors, BmsPlug, minify } = require('./blugins');
 
-const buildServerFile =()=>{
- return require('esbuild')
-  .build({
+const isDev = process.env.NODE_ENV === 'development';
+const buildServerFile = () => {
+  return require('esbuild').build({
     entryPoints: ['./src/server.js'],
     chunkNames: 'chunks/[name][hash][ext]',
     splitting: false,
-
     keepNames: true,
-    // sourcemap: false,
-    sourcemap: false,
+    sourcemap: process.env.NODE_ENV === 'development' ? 'inline' : false,
     define: userConf.define,
     logLevel: 'error',
-
     splitting: false,
-
     allowOverwrite: true,
     outfile: 'public/server/server.js',
     loader: { '.js': 'jsx' },
-
     plugins: [BmsPlug, Decors],
-
     bundle: true,
     external: ['express'],
     platform: 'node',
     format: 'cjs',
-
     watch: false,
     minify: false,
-  })
-}
+  });
+};
+let obj = {};
+!isDev ? (obj = { chunkNames: 'chunks/[hash][ext]' }) : null;
 esbuild
   .build({
     entryPoints: clientNames,
-    chunkNames: 'chunks/[hash][ext]',
+    ...obj,
     splitting: true,
     keepNames: true,
-    sourcemap: 'external',
+    sourcemap: isDev ? 'inline' : false,
     allowOverwrite: true,
     outdir: 'public/server/static',
     loader: { '.js': 'jsx' },
@@ -121,10 +113,11 @@ esbuild
     platform: 'node',
     format: 'esm',
     watch: true,
-    minify: true,
+    minify: !isDev,
   })
   .then((res) => {
-    buildServerFile().then(async (result) => {
+    buildServerFile()
+      .then(async (result) => {
         // /write package.json for server
         let package = {
           name: 'kraftserver',
@@ -185,15 +178,16 @@ esbuild
         // save to public/server/index.html
         fs.writeFileSync(resolve('public', 'server', 'index.html'), newIndex);
         console.log('build finished...');
-      }).then(()=>{
-        fs.watch(resolve('src','server.js'),()=>{
+      })
+      .then(() => {
+        fs.watch(resolve('src', 'server.js'), () => {
           console.log('server.js changed');
-          buildServerFile()
-        })
-        fs.watch(resolve('src','pages'),()=>{
+          buildServerFile();
+        });
+        fs.watch(resolve('src', 'pages'), () => {
           console.log('server.js changed');
-          buildServerFile()
-        })
+          buildServerFile();
+        });
         // exec('nodemon public/server', (err, stdout, stderr) => {
         //   if (err) {
         //     console.error(err);
@@ -202,20 +196,17 @@ esbuild
         //   console.log(stdout,'stdout');
         // })
         nodemon({
-          script: resolve('public','server','server.js'),
-          watch: resolve('public','server','server.js'),
+          script: resolve('public', 'server', 'server.js'),
+          watch: resolve('public', 'server', 'server.js'),
           ext: 'js',
-          stdout: false
-      })
-      .on('readable', function() {
-        this.stdout.on('data', function(chunk) {
-          console.log(chunk.toString('utf8'));
+          stdout: false,
+        }).on('readable', function () {
+          this.stdout.on('data', function (chunk) {
+            console.log(chunk.toString('utf8'));
+          });
+          this.stderr.on('data', function (chunk) {
+            console.error(chunk.toString('utf8'));
+          });
         });
-        this.stderr.on('data', function(chunk) {
-          console.error(chunk.toString('utf8'));
-        });
-      })
-
-  })
-  })
-
+      });
+  });

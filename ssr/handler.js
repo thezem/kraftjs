@@ -1,7 +1,10 @@
 import React from '../';
-import { renderToString } from 'react-dom/server';
+import { renderToString, renderToPipeableStream } from 'react-dom/server';
 const userConf = require('../es/conf.js');
 import RouterForServer from '../server/index';
+const { Writable } = require('stream');
+const Caches = {};
+
 const html = resolveFile;
 let Defines = (x) => {
   const changeIn = (str, oldStr, newStr) => {
@@ -47,7 +50,20 @@ async function findHead(KraftApp) {
     }
   });
 }
+const setToCache = (key, value) => {
+  Caches[key] = value;
+};
+const isInCache = (key) => {
+  if (!Caches[key]) return false;
+  return Caches[key];
+};
 export async function KraftExpressServer(req, res, next, App, imports) {
+  if (req.path?.includes('.js')) {
+    return next();
+  }
+  if (isInCache(req.url)) {
+    return res.send(isInCache(req.url));
+  }
   let clientReadyComponents = Object.keys(imports).map((x) => {
     /// kraft sends the pages names hash of the App to the client side
     // kraft router compares the hashes before requesting the javascript to see if it exists
@@ -70,7 +86,7 @@ export async function KraftExpressServer(req, res, next, App, imports) {
   global.localStorage = global.localStorage || {};
   global.AppLocals = global.AppLocals || {};
   const KraftApp = App();
-  let els = [];
+
   let headString = await findHead(KraftApp);
   const dataReturn = Defines(html).replace(
     '<head>',
@@ -80,10 +96,34 @@ export async function KraftExpressServer(req, res, next, App, imports) {
         )};
         </script>${headString}`
   );
-  let HeadBodyHtml = dataReturn.split('<body>');
+  let HeadBodyHtml = dataReturn.split('</head>');
   res.setHeader('Cache-Control', 'max-age=360');
-  res.write(HeadBodyHtml[0]);
-  res.write('<body><div id="root">');
+  res.setHeader('Content-Type', 'text/html');
+  let returnString = HeadBodyHtml[0] + '</head><body><div id="root">';
+
+  const pipeAndSend = (res, Component) => {
+    return new Promise(async (resolve) => {
+      const stream = await renderToPipeableStream(await Component, {
+        onAllReady: async () => {
+          stream.pipe(
+            new Writable({
+              write(chunk, encoding, callback) {
+                returnString += chunk.toString();
+                callback();
+              },
+              final(callback) {
+                setTimeout(() => {}, 500);
+                callback();
+              },
+            }),
+            { end: false }
+          );
+          resolve();
+        },
+      });
+    });
+  };
+
   await new Promise((resolve) => {
     try {
       KidToArr(KraftApp.props.children).forEach(async (el, i) => {
@@ -94,20 +134,22 @@ export async function KraftExpressServer(req, res, next, App, imports) {
             return;
           case 'RouterServer':
             let C = await RouterForServer(el.props.children, imports);
-            res.write(renderToString(<C.Comp {...C.props} />));
+            await pipeAndSend(res, <C.Comp {...C.props} />);
+            break;
           default:
-            res.write(renderToString(<el.type {...el.props} key={i} />));
+            await pipeAndSend(res, <el.type {...el.props} key={i} />);
+            break;
         }
         if (i == KidToArr(KraftApp.props.children).length - 1) resolve();
       });
     } catch (error) {
-      res.write(renderToString(<KraftApp />));
-      res.status(500).send('Internal Server Error');
+      console.log(error);
+      pipeAndSend(res, <KraftApp />);
       resolve();
     }
   });
-  res.write('</div></body>');
-  res.write(HeadBodyHtml[1].split('</body>')[1]);
-  res.end();
+  returnString += '</body>' + HeadBodyHtml[1].split('</body>')[1];
+  setToCache(req.url, returnString);
+  res.end(returnString);
   return;
 }

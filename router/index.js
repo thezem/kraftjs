@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense } from '../index.js';
 
 const GLOBAL_CACHE = 'cache-v2';
-
+import RouterForServer from 'kraftjs/server/index.js';
 var window = globalThis || {};
 let sessionStorage = window.sessionStorage || {};
 var localStorage = window.localStorage || {};
@@ -293,8 +293,8 @@ function serverRenderdComponents(name) {
 
 async function _ImportComp(x) {
   if (typeof x === 'function') return x;
-  const isServerRenderd = !serverRenderdComponents(x)
-  console.log(isServerRenderd,x);
+  const isServerRenderd = !serverRenderdComponents(x);
+  console.log(isServerRenderd, x);
   // if (!isServerRenderd) return false;
   var Found = routes.GetComponent(x);
   if (Found) {
@@ -674,6 +674,10 @@ async function getComponet(name, params) {
   });
   return ret;
 }
+
+const Loading = (prop) => {
+  return <div> Loading..</div>;
+};
 export const RouterServer = (obs = {}) => {
   const [props, setprops] = useState(_ParseCompChildren(obs.children) || {});
 
@@ -681,6 +685,9 @@ export const RouterServer = (obs = {}) => {
   for (const key in routes.routes) {
     _ImportComp(key);
   }
+  // if (window.addEventListener) {
+  //   return RouterForServer(obs);
+  // }
   const [params, setParams] = useState(_routeParser(props)); ///#hs
 
   const [Comprops, setComprops] = useState(params.props ? params.props : {});
@@ -702,6 +709,7 @@ export const RouterServer = (obs = {}) => {
   const [Component, setComponent] = useState(
     React.lazy(async () => await getComponet(name, params))
   );
+
   useEffect(() => {
     let intv;
 
@@ -723,6 +731,9 @@ export const RouterServer = (obs = {}) => {
           setComponent(
             React.lazy(async () => await getComponet(name, newParams))
           );
+          // getComponet(name, params).then((Comp) => {
+          //   setComponent(Comp);
+          // });
           setComprops({ ...newParams.props, ...E.detail });
           onunmount && onunmount();
           setonunmount(obs.onunmount ? obs.onunmount : () => {});
@@ -773,13 +784,7 @@ export const RouterServer = (obs = {}) => {
 
     return (
       <>
-        <React.Suspense
-          fallback={() => {
-            console.log('loaded', window.addEventListener);
-
-            return <div>loading...</div>;
-          }}
-        >
+        <React.Suspense fallback={<Loading />}>
           <Component {...Comprops} />
         </React.Suspense>
       </>

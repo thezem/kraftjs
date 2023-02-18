@@ -75,11 +75,7 @@ let BmsPlug = {
     build.onLoad({ filter: /\.js*|.ts*/ }, async (args) => {
       let envs = require('@babel/preset-env');
       let react = require('@babel/preset-react');
-      if (
-        args.path.includes('css') ||
-        args.path.includes('node_modules') ||
-        args.path.includes('json')
-      )
+      if (args.path.includes('node_modules') || args.path.includes('json'))
         return;
       let text = await fs.promises.readFile(args.path, 'utf8');
       let newIndex = text;
@@ -239,7 +235,7 @@ let minify = {
   setup(build) {
     build.onLoad({ filter: /(.*?)$/g }, async (args) => {
       let text = await fs.promises.readFile(args.path, 'utf8');
-      if (args.path.has(['.html', '.css', '.js'])) {
+      if (args.path.has(['.html', '.js'])) {
         text = mini(text);
       }
       return {
